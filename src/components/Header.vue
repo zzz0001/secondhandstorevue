@@ -6,9 +6,9 @@
     <span>
       <el-link @click="to('/login')" target="_blank" :underline="false" style="margin-right: 30px">联系客服</el-link>
       <el-link @click="to('/store')" target="_blank" :underline="false" style="margin-right: 600px">免费开店</el-link>
-      <el-link @click="to('/login')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-shopping-cart-full">购物车</el-link>
-      <el-link @click="to('/login')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-star-on">收藏夹</el-link>
-      <el-link @click="to('/login')" target="_blank" :underline="false" style="margin-right: 30px">我的订单</el-link>
+      <el-link @click="to('/order')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-shopping-cart-full">购物车</el-link>
+      <el-link @click="to('/collection')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-star-on">收藏夹</el-link>
+      <el-link @click="to('/order')" target="_blank" :underline="false" style="margin-right: 30px">我的订单</el-link>
       <el-link @click="to('/login')" v-show="!isLogin" :underline="false" style="margin-right: 30px">登录</el-link>
       <el-link @click="to('/register')"  v-show="!isLogin" :underline="false" style="margin-right: 30px">免费注册</el-link>
       <el-link @click="to('/store')"  v-show="isLogin" :underline="false" style="margin-right: 30px">我的店铺</el-link>

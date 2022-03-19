@@ -18,7 +18,9 @@ axios.interceptors.response.use( response => {
     // console.log(response.data);
     if (response.data.code === 200){
         return response;
-    }else{
+    }else if (response.data.code === 415){
+        return response;
+    } else{
         ElementUI.Message({
             showClose: true,
             message: response.data.message,

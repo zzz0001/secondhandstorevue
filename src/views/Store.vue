@@ -4,10 +4,9 @@
              class="el-icon-s-home">主页
     </el-link>
     <h2 class="my-title"> {{ store.storeName ? store.storeName : '我的店铺' }}</h2>
-    <span class="my-storeIntroduce">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{
-        store.storeIntroduce ? store.storeIntroduce : '这是店铺描述哦~'
-      }}</span>
-    <el-button type="primary" size="small" class="my-button" @click="dialogFormVisible = true">修改店铺信息</el-button>
+    <span class="my-storeIntroduce">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{store.storeIntroduce ? store.storeIntroduce : '这是店铺描述哦~' }}</span>
+    <el-button v-if="owner" type="primary" size="small" class="my-button" @click="dialogFormVisible = true">修改店铺信息
+    </el-button>
     <div v-if="userInfo.status === 0" class="my-main-des">
       <el-button type="primary" @click="to('/userInfo')"> 开通账户</el-button>
       <div style="margin-left: 10px;margin-top: 20px">你需要先开通账户,才能开通店铺哦</div>
@@ -22,17 +21,17 @@
           <el-link @click="getDetail(item.goods.goodsId)" :underline="false">
             <div>
               <el-image
-                  style="width: 150px; height: 150px;border-radius: 10px"
+                  style="width: 150px; height: 150px;border-radius: 6px"
                   :src="item.images ? item.images.at(0) : ''"
                   fit="cover"></el-image>
             </div>
             <p class="my-goodsName">{{ item.goods.goodsName }}</p>
             <span style="color: red;margin-left: 4px;font-size: 16px;">¥ {{ item.goods.goodsPrice.toFixed(2) }} </span>
           </el-link>
-          <el-button v-if="!editStatus" class="my-edit-button" icon="el-icon-edit" circle type="primary" size="mini"
+          <el-button v-if="!editStatus && owner" class="my-edit-button" icon="el-icon-edit" circle type="primary" size="mini"
                      @click="editGoods(index)">
           </el-button>
-          <el-button v-else class="my-edit-button" icon="el-icon-delete" circle type="danger" size="mini"
+          <el-button v-if="editStatus && owner" class="my-edit-button" icon="el-icon-delete" circle type="danger" size="mini"
                      @click="removeGoods(item.goods.goodsId)">
           </el-button>
         </div>
@@ -53,18 +52,18 @@
         <el-button v-else type="primary" @click="changeStore('store')">修改</el-button>
       </div>
     </el-dialog>
-
-    <el-button type="primary" size="small" class="my-button2" @click="addGoods">添加商品</el-button>
-    <el-button v-if="editStatus" type="primary" size="small" class="my-button3" @click="editStatus=false">修改商品</el-button>
-    <el-button v-else type="primary" size="small" class="my-button3" @click="editStatus=true">删除商品</el-button>
-
+    <div v-if="owner">
+      <el-button type="primary" size="small" class="my-button2" @click="addGoods">添加商品</el-button>
+      <el-button v-if="editStatus" type="primary" size="small" class="my-button3" @click="editStatus=false">修改商品</el-button>
+      <el-button v-else type="primary" size="small" class="my-button3" @click="editStatus=true">删除商品</el-button>
+    </div>
     <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
         {{ editFlag ? '修改商品' : '添加商品' }} </h2>
       <el-form :model="goods" :rules="rules2" ref="goods" hide-required-asterisk>
         <el-form-item label="商品名称" label-width="80px" prop="goodsName">
           <el-input v-model="goods.goodsName"></el-input>
-        </el-form-item >
+        </el-form-item>
         <el-form-item label="商品介绍" label-width="80px" prop="goodsIntroduce">
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 6}" v-model="goods.goodsIntroduce"></el-input>
         </el-form-item>
@@ -205,10 +204,15 @@ export default {
       dialogVisible: false,
       editFlag: false,
       editStatus: false,
+      owner: true,
     }
   },
   created() {
     this.header.Authorization = this.$store.state.token
+    const storeId = this.$route.params.storeId
+    if (storeId){
+      this.owner = false;
+    }
     this.getUser()
     this.getStore()
     this.getGoods()
@@ -295,17 +299,17 @@ export default {
       this.goods = {}
       this.goods.images = []
     },
-    removeGoods(goodsId){
+    removeGoods(goodsId) {
       const _this = this
       this.$confirm('此操作将永久删除该商品, 是否继续?', '删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$axios.delete('/goods/'+goodsId).then(res =>{
+        this.$axios.delete('/goods/' + goodsId).then(res => {
           _this.getGoods()
           _this.$message.success("商品删除成功")
-        }).catch(err =>{
+        }).catch(err => {
           _this.$message.error("商品删除失败")
           console.log(err)
         })
@@ -468,6 +472,7 @@ export default {
   top: 140px;
   left: 88vmax;
 }
+
 .my-button3 {
   position: absolute;
   top: 180px;
@@ -520,7 +525,7 @@ export default {
 .my-edit-button {
   position: absolute;
   z-index: 10;
-  margin-top: 186px;
+  margin-top: 188px;
   margin-left: -30px;
 }
 

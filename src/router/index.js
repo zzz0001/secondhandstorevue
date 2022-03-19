@@ -44,6 +44,21 @@ const routes = [
     path: '/goodsDetail/:goodsId',
     name: 'GoodsDetail',
     component: () => import('../views/GoodsDetail')
+  },
+  {
+    path: '/order',
+    name: 'Order',
+    component: () => import('../views/Order')
+  },
+  {
+    path: '/orderDetail/:orderId',
+    name: 'OrderDetail',
+    component: () => import('../views/OrderDetail')
+  },
+  {
+    path: '/collection',
+    name: 'Collection',
+    component: () => import('../views/Collection')
   }
 ]
 

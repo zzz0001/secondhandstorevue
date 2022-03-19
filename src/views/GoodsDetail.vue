@@ -35,11 +35,11 @@
         </div>
         <div>
           <el-button @click="buyGoods" type="primary" style="margin-left: 50px">立即购买</el-button>
-          <el-button @click="collectionGoods" type="danger" style="margin-left: 50px"><i
+          <el-button @click="addOrder(1)" type="danger" style="margin-left: 50px"><i
               class="el-icon-shopping-cart-full"></i> 加入购物车
           </el-button>
         </div>
-        <el-link style="margin-left: 320px;margin-top: 6px" :underline="false"><i class="el-icon-star-off"/>收藏商品</el-link>
+        <el-link @click="collectionGoods" style="margin-left: 320px;margin-top: 6px" :underline="false"><i class="el-icon-star-off"/>收藏商品</el-link>
       </div>
     </div>
   </div>
@@ -50,19 +50,30 @@ export default {
   name: "GoodsDetail",
   data() {
     return {
-      goodsId: '',
+      goodsId: 0,
       goods: {
         goods: {
+          studentId: 0,
           goodsName: '',
           goodsIntroduce: '',
           goodsCategory: 0,
           goodsPrice: 0,
-          goodsInventory: 10
+          goodsInventory: 10,
         },
         images: [],
       },
       order: {
+        orderId: -1,
+        storeId: 0,
+        studentId: 0,
+        goodsId: 0,
         goodsNum: 1,
+        totalPrice: 0,
+      },
+      collection: {
+        goodsId: 0,
+        studentId: 0,
+        goodsCategory: 0,
       },
     }
   },
@@ -79,11 +90,62 @@ export default {
         console.log(err);
       })
     },
+    getOrder(){
+      this.order.goodsId = this.goodsId
+      this.order.studentId = this.$store.state.userInfo.studentId
+      this.order.storeId = this.goods.goods.studentId
+      this.order.totalPrice = this.TotalPrice
+    },
+    getCollection(){
+      this.collection.studentId = this.$store.state.userInfo.studentId
+      this.collection.goodsId = this.goodsId
+      this.collection.goodsCategory = this.goods.goods.goodsCategory
+    },
     buyGoods(){
-
+      this.addOrder(0)
+    },
+    addOrder(status){
+      this.getOrder()
+      if (this.order.orderId != -1){
+        if (status === 0){
+          this.$router.push(`/orderDetail/${this.order.orderId}`)
+        }else{
+          this.$message.warning("商品已添加到购物车,不能重复添加")
+        }
+        return false
+      }
+      const _this = this
+      this.$axios.post('/order',this.order).then(res =>{
+        _this.order.orderId = res.data.data
+        if (res.data.code === 415){
+          if (status === 0){
+            _this.$router.push(`/orderDetail/${res.data.data}`)
+          }else{
+            _this.$message.warning("商品已添加到购物车,不能重复添加")
+          }
+        }else {
+          if (status === 1){
+            _this.$message.success("商品已加入购物车")
+          }else{
+            _this.$router.push(`/orderDetail/${res.data.data}`)
+          }
+        }
+      }).catch(err =>{
+        console.log(err);
+      })
     },
     collectionGoods(){
-
+      this.getCollection()
+      const _this = this
+      this.$axios.post('/collection',this.collection).then(res =>{
+        if (res.data.code === 415){
+          _this.$message.warning(res.data.message)
+        }else {
+          _this.$message.success("商品收藏成功")
+        }
+      }).catch(err =>{
+        console.log(err);
+      })
     },
     to(path){
       this.$router.push(path)

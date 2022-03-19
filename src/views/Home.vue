@@ -10,6 +10,10 @@
         fit="cover">
     </el-image>
 
+    <el-tooltip class="item" effect="dark" content="Bottom Center 提示文字" placement="bottom">
+      <el-button>下边</el-button>
+    </el-tooltip>
+
   </div>
 </template>
 
