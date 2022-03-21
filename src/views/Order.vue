@@ -1,46 +1,124 @@
 <template>
   <div id="order">
-    <div v-for="(item,index) in orderList" class="my-order-info">
-      <div>
-        <el-link  @click="getStore(item.store.storeId)" :underline="false">
-          <span class="my-store-name"><i class="el-icon-s-shop" style="font-size: 16px"></i>{{ item.store.storeName }} <i class="el-icon-arrow-right"></i></span>
-        </el-link>
-      </div>
-      <div class="my-goods-image" >
-        <el-image @click="GoodsDetail(item.goods.goodsId)"
-            style="width: 200px; height: 200px;border-radius: 6px;margin-top: 6px;float: left"
-            :src="item.images ? item.images.at(0) : ''"
-            fit="cover">
-        </el-image>
-        <div class="my-goods-info">
-          <div @click="GoodsDetail(item.goods.goodsId)">
-            <h3 class="my-goods-name">{{ item.goods.goodsName }}</h3>
-            <p class="my-goods-description">&nbsp;&nbsp;&nbsp;&nbsp;{{ item.goods.goodsIntroduce }}</p>
-            <p style="font-size: 14px"> 数量: x<span> {{ item.order.goodsNum }}</span></p>
-            <p style="font-size: 14px;margin-top: 6px;margin-left: 150px"> 付款：<span style="color: red">¥</span> <span class="my-price">{{item.order.totalPrice.toFixed(2)}}</span></p>
-          </div>
+    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-s-home">主页
+    </el-link>
+    <div>
+      <el-tabs v-model="activeName"  type="border-card" @tab-click="handleClick" class="my-el-tabs" >
+        <el-tab-pane label="待付款" name="first">
 
-          <el-tooltip class="item" effect="light" placement="bottom-start">
-            <div v-if="item.order.orderStatus === 0" slot="content">创建日期：{{item.order.createTime.replace('T',' ')}} </div>
-            <div v-if="item.order.orderStatus === 1" slot="content">创建日期：{{item.order.createTime.replace('T',' ')}} <br> 付款时间：{{item.order.orderDate.replace('T',' ')}} </div>
-            <div v-if="item.order.orderStatus === 2" slot="content">创建日期：{{item.order.createTime.replace('T',' ')}} <br> 付款时间：{{item.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}}</div>
-            <div v-if="item.order.orderStatus === 3" slot="content">创建日期：{{item.order.createTime.replace('T',' ')}} <br> 付款时间：{{item.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{item.order.receiveDate.replace('T',' ')}}</div>
-            <div v-if="item.order.orderStatus === 4" slot="content">创建日期：{{item.order.createTime.replace('T',' ')}} <br> 付款时间：{{item.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{item.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{item.order.returnDate.replace('T',' ')}}</div>
-            <button style="border: none;background: white">更多</button>
-          </el-tooltip>
+        </el-tab-pane>
+        <el-tab-pane label="待发货" name="second">
 
-          <el-button v-if="item.order.orderStatus === 0" @click="payment(item.order.orderId)" type="danger" class="my-button" round> 付款 </el-button>
-          <el-button v-if="item.order.orderStatus === 1" @click="quick(item.order.orderId)" type="danger" class="my-button2" round> 催发货 </el-button>
-          <el-button v-if="item.order.orderStatus === 2" @click="receive(item.order.orderId)" type="danger" class="my-button3" round> 确认收货 </el-button>
-        </div>
-      </div>
+        </el-tab-pane>
+        <el-tab-pane label="待收货" name="third">
+
+        </el-tab-pane>
+        <el-tab-pane label="待评价" name="fourth">
+
+        </el-tab-pane>
+        <el-tab-pane label="售后服务" name="five">
+
+        </el-tab-pane>
+      </el-tabs>
     </div>
+
+    <el-table
+        :data="orderList"
+        border
+        style="width: 900px;margin: -32px auto 14px auto;font-size: 10px"
+        :row-style="{height: '100px'}"
+        :cell-style="{padding: '0px 0px 0px 0px'}"
+        @cell-click="toStore"
+        :cell-class-name="cellClassName"
+    >
+      <el-table-column
+          label="商品图片"
+          width="110"
+      >
+        　　<template slot-scope="images">
+              <el-image
+                  style="width: 100px; height: 100px;border-radius: 2px;margin-left: -6px;margin-top: 4px"
+                  :src="images ? images.row.images.at(0) : ''"
+                  fit="cover">
+              </el-image>
+        　　</template>
+      </el-table-column>
+
+      <el-table-column
+          prop="goods.goodsName"
+          label="商品名称"
+          width="100"
+          align="center"
+      >
+      </el-table-column>
+      <el-table-column
+          prop="goods.goodsIntroduce"
+          label="商品介绍"
+          width="200"
+          align="center"
+      >
+      </el-table-column>
+
+      <el-table-column
+          prop="store.storeName"
+          label="店铺名"
+          width="120"
+          align="center"
+      >
+      </el-table-column>
+      <el-table-column
+          prop="order.goodsNum"
+          label="商品数量"
+          width="70"
+          align="center"
+      >
+      </el-table-column>
+      <el-table-column
+          label="金额"
+          width="100"
+          align="center"
+      >
+        <template slot-scope="order">
+          <span style="color: red">¥</span> <span class="my-price">{{order.row.order.totalPrice}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+          label="操作"
+          width="110"
+          align="center"
+      >
+        <template slot-scope="order">
+          <el-button v-if="order.row.order.orderStatus === 0" @click="payment(order.row.order.orderId)" type="danger"  size="medium" >付款</el-button>
+          <el-button v-if="order.row.order.orderStatus === 1" @click="quick(order.row.order.orderId)" type="danger"  size="small"  >催发货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 2" @click="receive(order.row.order.orderId)" type="danger"  size="small" >确认收货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 3" @click="receive(order.row.order.orderId)" type="danger"  size="small" >待评价</el-button>
+          <el-button v-if="order.row.order.orderStatus === 4" @click="receive(order.row.order.orderId)" type="danger"  size="small" >退货</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column
+          label="更多详情"
+          width="89"
+          align="center">
+         <template slot-scope="order">
+           <el-tooltip class="item" effect="light" placement="bottom-start">
+             <div v-if="order.row.order.orderStatus === 0" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} </div>
+             <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
+             <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{item.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
+             <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
+           </el-tooltip>
+         </template>
+      </el-table-column>
+    </el-table>
+
   </div>
 </template>
 
 <script>
 export default {
-  name: "OrderDetail",
+  name: "order",
   created() {
     this.userInfo = this.$store.state.userInfo
     this.getOrderList()
@@ -50,12 +128,13 @@ export default {
       userInfo: {},
       orderList: [],
       orderVo: {},
+      activeName: 'first',
     }
   },
   methods: {
     getOrderList() {
       const _this = this
-      this.$axios.get('/orderList/' + this.userInfo.studentId).then(res => {
+      this.$axios.get('/orderListByStatus/0').then(res => {
         this.orderList = res.data.data
       }).catch(err => {
         console.log(err);
@@ -76,7 +155,7 @@ export default {
       const _this = this
       this.orderVo.orderId = orderId;
       this.$prompt('请输入密码', '验证', {
-        confirmButtonText: '提现',
+        confirmButtonText: '付款',
         inputPattern: /^\d{6}$/,
         inputErrorMessage: '密码为6位数字'
       }).then(({value}) => {
@@ -103,11 +182,32 @@ export default {
         console.log(err);
       })
     },
+    handleClick(tab) {
+      const _this = this
+      this.$axios.get('/orderListByStatus/' + tab.index).then(res => {
+        this.orderList = res.data.data
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    toStore(row, column, cell, event){
+      if (column.index === 3){
+        this.getStore(row.order.storeId)
+      }else if(column.index >= 6 ){
+
+      }else {
+        this.GoodsDetail(row.goods.goodsId)
+      }
+    },
+    cellClassName({row, column, rowIndex, columnIndex}){
+      row.index = rowIndex;
+      column.index = columnIndex;
+    },
+    to(path){
+      this.$router.push(path)
+    },
   },
   computed:{
-    moreInfo(info){
-      return "下单日期："+ info
-    }
   }
 }
 </script>
@@ -117,59 +217,18 @@ export default {
   overflow: hidden;
   min-height: calc(100vh - 70px);
   background: #efe8e8;
-  padding-top: 14px;
 }
 
-.my-order-info {
-  overflow: hidden;
-  background: white;
-  max-width: 500px;
-  min-width: 500px;
-  margin: 0 auto 14px;
-  padding: 6px;
-  border-radius: 6px;
-}
-
-.my-goods-image {
-  width: 498px;
-}
-
-.my-goods-info {
-  width: 280px;
-  float: left;
-  margin-left: 18px;
-}
-.my-goods-description{
-  margin-top: 6px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  max-height: 42px;
-  overflow: hidden;
-}
-.my-store-name{
-  max-height: 24px;
-  overflow: hidden;
-}
-.my-goods-name{
-  max-height: 24px;
-  overflow: hidden;
-  margin-top: 6px;
-}
 .my-price{
-  font-size: 24px;
+  font-size: 18px;
   color: red;
 }
-.my-button{
-  width: 80px;
-  margin-left: 160px;
-  margin-top: 20px;
+.my-el-tabs{
+  width: 898px;
+  text-align: center;
+  margin: -10px auto 0 auto;
 }
-.my-button2{
-  margin-left: 150px;
-  margin-top: 20px;
-}
-.my-button3{
-  margin-left: 140px;
-  margin-top: 20px;
+.el-table--border::after{
+  width: 0px;
 }
 </style>

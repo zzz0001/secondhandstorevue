@@ -375,6 +375,10 @@ export default {
         inputPattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
         inputErrorMessage: '金额格式不正确'
       }).then(({value}) => {
+        if (value > this.account.money){
+          this.$message.error("余额不足")
+          return false
+        }
         const money = value
         this.$prompt('请输入密码', '验证', {
           confirmButtonText: '提现',
@@ -415,7 +419,7 @@ export default {
 
 .my-descriptions {
   width: 60vmax;
-  margin-top: -10px;
+  margin-top: -20px;
 }
 
 .my-main-title {

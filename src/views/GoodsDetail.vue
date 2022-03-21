@@ -19,7 +19,7 @@
         <h3 style="max-height: 42px;overflow: hidden;width: 400px;margin-bottom: 6px;">{{ goods.goods.goodsName }}</h3>
         <div style="background: rgba(253,236,236,0.8);margin-left: -8px">
           <span style="color: red;font-size: 28px;width: 240px;display:inline-block;margin-left: 8px"> ¥ {{ TotalPrice.toFixed(2) }} </span>
-          <span style="margin-left: 90px;font-size: 16px"> 库存:{{ goods.goods.goodsInventory }}</span>
+          <span style="margin-left: 90px;font-size: 16px"> 库存: {{ goods.goods.goodsInventory }}</span>
         </div>
         <p style="width: 400px;margin-bottom: 6px;margin-top: 8px;font-size: 16px">描述:</p>
         <p style="font-size: 16px;max-height: 84px;min-height: 84px;overflow: hidden;">&nbsp;&nbsp;&nbsp;
@@ -29,7 +29,7 @@
           <el-input-number size="small" v-model="order.goodsNum" :min="1" :max="goods.goods.goodsInventory"
                            style="margin-left: 20px"></el-input-number>
           <span style="margin-left: 170px;">
-            <span v-if="goods.goods.goodsInventory < 1">缺货</span>
+            <span v-if="goods.goods.goodsInventory < 1" style="color: red;font-size: 18px">缺货</span>
             <span v-else>有货</span>
           </span>
         </div>

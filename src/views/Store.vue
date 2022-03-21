@@ -28,11 +28,17 @@
             <p class="my-goodsName">{{ item.goods.goodsName }}</p>
             <span style="color: red;margin-left: 4px;font-size: 16px;">¥ {{ item.goods.goodsPrice.toFixed(2) }} </span>
           </el-link>
-          <el-button v-if="!editStatus && owner" class="my-edit-button" icon="el-icon-edit" circle type="primary" size="mini"
+          <el-button v-if="editStatus === 0 && owner" class="my-edit-button" icon="el-icon-edit" circle type="primary" size="mini"
                      @click="editGoods(index)">
           </el-button>
-          <el-button v-if="editStatus && owner" class="my-edit-button" icon="el-icon-delete" circle type="danger" size="mini"
+          <el-button v-if="editStatus === 1 && owner" class="my-edit-button" icon="el-icon-delete" circle type="danger" size="mini"
                      @click="removeGoods(item.goods.goodsId)">
+          </el-button>
+          <el-button v-if="editStatus === 2 && owner" class="my-edit-button" icon="el-icon-plus" circle type="primary" size="mini"
+                     @click="addInventory(item.goods.goodsId)">
+          </el-button>
+          <el-button v-if="item.goods.goodsInventory === 0 " class="my-goods-inventory"  circle type="danger" >
+            缺
           </el-button>
         </div>
       </div>
@@ -54,8 +60,9 @@
     </el-dialog>
     <div v-if="owner">
       <el-button type="primary" size="small" class="my-button2" @click="addGoods">添加商品</el-button>
-      <el-button v-if="editStatus" type="primary" size="small" class="my-button3" @click="editStatus=false">修改商品</el-button>
-      <el-button v-else type="primary" size="small" class="my-button3" @click="editStatus=true">删除商品</el-button>
+      <el-button  type="primary" size="small" class="my-button3" @click="editStatus=0">修改商品</el-button>
+      <el-button  type="primary" size="small" class="my-button4" @click="editStatus=1">删除商品</el-button>
+      <el-button  type="primary" size="small" class="my-button5" @click="editStatus=2">添加库存</el-button>
     </div>
     <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
@@ -68,7 +75,7 @@
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 6}" v-model="goods.goodsIntroduce"></el-input>
         </el-form-item>
         <el-form-item label="商品类别" label-width="80px" prop="goodsCategory">
-          <el-select v-model="goods.goodsCategory" placeholder="请选择" size="medium" style="width:420px">
+          <el-select v-model="goods.goodsCategory" placeholder="请选择" size="medium" style="width:370px">
             <el-option
                 v-for="item in goodsCategory"
                 :key="item.value"
@@ -188,7 +195,7 @@ export default {
           label: '手机'
         }, {
           value: 6,
-          label: '电脑'
+          label: '电脑、电脑周边'
         },
       ],
       header: {
@@ -203,7 +210,7 @@ export default {
       dialogImageUrl: '',
       dialogVisible: false,
       editFlag: false,
-      editStatus: false,
+      editStatus: 0,
       owner: true,
     }
   },
@@ -316,6 +323,26 @@ export default {
       }).catch(() => {
         _this.$message.info("已取消删除")
       });
+    },
+    addInventory(goodsId){
+      this.$prompt('请输入要增加的库存数,负数则为减库存', '库存', {
+        confirmButtonText: '添加',
+        inputPattern: /^(-)?[1-9][0-9]*$/,
+        inputErrorMessage: '需要添加非零整数'
+      }).then(({value}) => {
+        this.$axios.put('/goods/inventory/'+goodsId+'/'+value).then(res =>{
+          this.getGoods()
+          if (value < 0){
+            this.$message.success("你减少的库存为："+value)
+          }else{
+            this.$message.success("你增加的库存为："+value)
+          }
+        }).catch(err =>{
+          console.log(err);
+        })
+      }).catch((err) => {
+        console.log(err);
+      })
     },
     postGoods(formName) {
       this.$refs[formName].validate((valid) => {
@@ -479,7 +506,18 @@ export default {
   left: 88vmax;
   margin-left: 0px;
 }
-
+.my-button4 {
+  position: absolute;
+  top: 220px;
+  left: 88vmax;
+  margin-left: 0px;
+}
+.my-button5 {
+  position: absolute;
+  top: 260px;
+  left: 88vmax;
+  margin-left: 0px;
+}
 .el-form-item {
   margin-bottom: 18px;
 }
@@ -528,5 +566,10 @@ export default {
   margin-top: 188px;
   margin-left: -30px;
 }
-
+.my-goods-inventory {
+  z-index: 10;
+  position: absolute;
+  margin-top: 105px;
+  margin-left: -45px;
+}
 </style>

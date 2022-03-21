@@ -1,12 +1,9 @@
 <template>
   <div class="main-header" style="padding: 0px;">
-<!--    <div style="display: block">-->
-<!--      <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" @click="logout(userInfo)" class="user-image"></el-avatar>-->
-<!--    </div>-->
-    <span>
+    <p style="max-width: 9999px;height: 40px">
       <el-link @click="to('/login')" target="_blank" :underline="false" style="margin-right: 30px">联系客服</el-link>
       <el-link @click="to('/store')" target="_blank" :underline="false" style="margin-right: 600px">免费开店</el-link>
-      <el-link @click="to('/order')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-shopping-cart-full">购物车</el-link>
+      <el-link @click="to('/shoppingCart')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-shopping-cart-full">购物车</el-link>
       <el-link @click="to('/collection')" target="_blank" :underline="false" style="margin-right: 30px" icon="el-icon-star-on">收藏夹</el-link>
       <el-link @click="to('/order')" target="_blank" :underline="false" style="margin-right: 30px">我的订单</el-link>
       <el-link @click="to('/login')" v-show="!isLogin" :underline="false" style="margin-right: 30px">登录</el-link>
@@ -21,7 +18,7 @@
         <el-dropdown-item><el-link @click="logout">退出账号</el-link></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    </span>
+    </p>
     <span :v-show="false">{{getChange}}</span>
   </div>
 </template>
@@ -76,7 +73,6 @@ export default {
 
 <style scoped>
 .main-header {
-  width: 100%;
   font-family: '微软雅黑';
   font-size: 14px;
   height: 40px;

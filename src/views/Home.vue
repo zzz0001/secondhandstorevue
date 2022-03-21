@@ -3,6 +3,7 @@
     <h1 class="my-button">首页信息</h1>
 
     <el-button @click="test(12)"></el-button>
+    <el-button @click="ttt" type="primary"></el-button>
 
     <el-image v-for="item in 2"
         style="width: 150px; height: 150px;border-radius: 10px"
@@ -39,7 +40,10 @@ export default {
       this.$router.push({
         path: `/goodsDetail/${goodsId}`
       })
-    }
+    },
+    ttt(){
+      this.$message.success("成功的消息")
+    },
   }
 }
 

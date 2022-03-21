@@ -51,9 +51,9 @@ const routes = [
     component: () => import('../views/Order')
   },
   {
-    path: '/orderDetail/:orderId',
-    name: 'OrderDetail',
-    component: () => import('../views/OrderDetail')
+    path: '/shoppingCart',
+    name: 'ShoppingCart',
+    component: () => import('../views/ShoppingCart')
   },
   {
     path: '/collection',
