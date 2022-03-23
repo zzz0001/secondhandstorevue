@@ -42,6 +42,14 @@
         <el-link @click="collectionGoods" style="margin-left: 320px;margin-top: 6px" :underline="false"><i class="el-icon-star-off"/>收藏商品</el-link>
       </div>
     </div>
+    <div class="toStore" @click="toStore">
+      <i class="el-icon-s-shop" style="font-size: 30px;color: #409EFF"></i>
+      <p style="font-size: 16px;color: #38383b">店铺</p>
+    </div>
+    <div class="my-talk" @click="toChat">
+      <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
+      <p style="font-size: 16px;color: #38383b">客服</p>
+    </div>
   </div>
 </template>
 
@@ -62,6 +70,7 @@ export default {
         },
         images: [],
       },
+      store: {},
       order: {
         orderId: -1,
         storeId: 0,
@@ -79,6 +88,7 @@ export default {
   },
   created() {
     this.getGoods()
+    this.getStore()
   },
   methods: {
     getGoods() {
@@ -86,6 +96,14 @@ export default {
       const _this = this
       this.$axios.get('/goods/' + this.goodsId).then(res => {
         _this.goods = res.data.data
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    getStore(){
+      const _this = this
+      this.$axios.get('/storeByGoodsId/' + this.goodsId).then(res => {
+        _this.store = res.data.data
       }).catch(err => {
         console.log(err);
       })
@@ -108,7 +126,7 @@ export default {
       this.getOrder()
       if (this.order.orderId != -1){
         if (status === 0){
-          this.$router.push(`/orderDetail/${this.order.orderId}`)
+          this.$router.push('/order')
         }else{
           this.$message.warning("商品已添加到购物车,不能重复添加")
         }
@@ -119,7 +137,7 @@ export default {
         _this.order.orderId = res.data.data
         if (res.data.code === 415){
           if (status === 0){
-            _this.$router.push(`/orderDetail/${res.data.data}`)
+            _this.$router.push('/order')
           }else{
             _this.$message.warning("商品已添加到购物车,不能重复添加")
           }
@@ -127,7 +145,7 @@ export default {
           if (status === 1){
             _this.$message.success("商品已加入购物车")
           }else{
-            _this.$router.push(`/orderDetail/${res.data.data}`)
+            _this.$router.push('/order')
           }
         }
       }).catch(err =>{
@@ -149,6 +167,17 @@ export default {
     },
     to(path){
       this.$router.push(path)
+    },
+    toStore(){
+      this.$router.push({
+        name: 'Store',
+        params: {
+          storeId: this.store.storeId,
+        }
+      })
+    },
+    toChat(){
+
     }
   },
   computed: {
@@ -169,7 +198,7 @@ export default {
 }
 
 .block {
-  width: 750px;
+  width: 800px;
   margin: 0 auto;
 }
 
@@ -188,5 +217,15 @@ export default {
 }
 .my-editGoods{
   margin-left: 70px;
+}
+.my-talk{
+  position: absolute;
+  top: 140px;
+  left: 80vmax;
+}
+.toStore{
+  position: absolute;
+  top: 80px;
+  left: 80vmax;
 }
 </style>

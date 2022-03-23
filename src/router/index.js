@@ -59,6 +59,16 @@ const routes = [
     path: '/collection',
     name: 'Collection',
     component: () => import('../views/Collection')
+  },
+  {
+    path: '/storeOrder',
+    name: 'StoreOrder',
+    component: () => import('../views/StoreOrder')
+  },
+  {
+    path: '/chat/:chatStudentId',
+    name: 'Chat',
+    component: () => import('../views/Chat')
   }
 ]
 

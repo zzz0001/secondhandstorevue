@@ -3,19 +3,19 @@
     <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
              class="el-icon-s-home">主页
     </el-link>
-    <h2 class="my-title"> 我的购物订单 </h2>
+    <h2 class="my-title"> 店铺订单 </h2>
     <div>
       <el-tabs v-model="activeName"  type="border-card" @tab-click="handleClick" class="my-el-tabs" >
-        <el-tab-pane label="待付款" name="first">
+        <el-tab-pane label="待发货" name="first">
 
         </el-tab-pane>
-        <el-tab-pane label="待发货" name="second">
+        <el-tab-pane label="已发货" name="second">
 
         </el-tab-pane>
-        <el-tab-pane label="待收货" name="third">
+        <el-tab-pane label="已收货" name="third">
 
         </el-tab-pane>
-        <el-tab-pane label="待评价" name="fourth">
+        <el-tab-pane label="已评价" name="fourth">
 
         </el-tab-pane>
         <el-tab-pane label="售后服务" name="five">
@@ -62,8 +62,8 @@
       </el-table-column>
 
       <el-table-column
-          prop="store.storeName"
-          label="店铺名"
+          prop="user.userName"
+          label="用户名"
           width="120"
           align="center"
       >
@@ -90,11 +90,11 @@
           align="center"
       >
         <template slot-scope="order">
-          <el-button v-if="order.row.order.orderStatus === 0 " @click="payment(order.row.order.orderId)" type="danger"  size="medium" >付款</el-button>
-          <el-button v-if="order.row.order.orderStatus === 1 " @click="quick(order.row.order.orderId)" type="danger"  size="small"  >催发货</el-button>
-          <el-button v-if="order.row.order.orderStatus === 2 " @click="receive(order.row.order.orderId)" type="danger"  size="small" >确认收货</el-button>
-          <el-button v-if="order.row.order.orderStatus === 3 " @click="receive(order.row.order.orderId)" type="danger"  size="small" >评价</el-button>
-          <el-button v-if="order.row.order.orderStatus === 4 " @click="returnGoods(order.row.order.orderId)" type="danger"  size="small" >退货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 1" @click="deliver(order.row.order.orderId)" type="danger"  size="small"  >发货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 2"  type="danger"  size="small" >已发货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 3"  type="danger"  size="small" >已收货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 4"  type="primary" size="small" >已评价</el-button>
+          <el-button v-if="order.row.order.orderStatus === 5" @click="returnGoods(order.row.order.orderId)" type="danger"  size="small" >确认退货</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -124,69 +124,43 @@ export default {
     this.userInfo = this.$store.state.userInfo
     this.getOrderList()
   },
+  mounted() {
+    this.initWebSocket(); //页面渲染的时候，对ws进行初始化
+  },
   data() {
     return {
       userInfo: {},
       orderList: [],
       orderVo: {},
+      websocket: {},
       activeName: 'first',
     }
   },
   methods: {
     getOrderList() {
       const _this = this
-      this.$axios.get('/orderListByStatus/0').then(res => {
+      this.$axios.get('/orderListByStoreId/1').then(res => {
         this.orderList = res.data.data
+        console.log(res.data.data);
       }).catch(err => {
         console.log(err);
       })
     },
-    getStore(storeId){
-      this.$router.push({
-        name: 'Store',
-        params :{
-          storeId: storeId,
-        }
-      })
+    getUser(storeId){
+      // this.$router.push({
+      //   name: 'Store',
+      //   params :{
+      //     storeId: storeId,
+      //   }
+      // })
     },
     GoodsDetail(goodsId){
       this.$router.push(`/goodsDetail/${goodsId}`)
     },
-    payment(orderId){
-      const _this = this
-      this.orderVo.orderId = orderId;
-      this.$prompt('请输入密码', '验证', {
-        confirmButtonText: '付款',
-        inputPattern: /^\d{6}$/,
-        inputErrorMessage: '密码为6位数字'
-      }).then(({value}) => {
-        this.orderVo.password = value
-        this.$axios.put('/order',this.orderVo).then(res =>{
-          _this.$message.success("付款成功")
-          _this.getOrderList()
-        }).catch(err =>{
-          console.log(err);
-        })
-      }).catch((err) => {
-        console.log(err);
-      })
-    },
-    quick(){
-
-    },
-    delivery(orderId){
+    deliver(orderId){
       const _this = this
       this.$axios.put('/order/deliver/'+orderId).then(res =>{
         _this.$message.success("发货成功")
-        _this.getOrderList()
-      }).catch(err =>{
-        console.log(err);
-      })
-    },
-    receive(orderId){
-      const _this = this
-      this.$axios.put('/order/receive/'+orderId).then(res =>{
-        _this.$message.success("收货成功")
         _this.getOrderList()
       }).catch(err =>{
         console.log(err);
@@ -197,7 +171,9 @@ export default {
     },
     handleClick(tab) {
       const _this = this
-      this.$axios.get('/orderListByStatus/' + tab.index).then(res => {
+      let index = parseInt(tab.index)
+      index += 1
+      this.$axios.get('/orderListByStatus/' + index).then(res => {
         _this.orderList = res.data.data
       }).catch(err => {
         console.log(err);
@@ -205,7 +181,7 @@ export default {
     },
     toStore(row, column, cell, event){
       if (column.index === 3){
-        this.getStore(row.order.storeId)
+        this.getUser(row.user.studentId)
       }else if(column.index >= 6 ){
 
       }else {
@@ -218,6 +194,47 @@ export default {
     },
     to(path){
       this.$router.push(path)
+    },
+    initWebSocket(){
+      const _this = this
+      if('WebSocket' in window){
+        this.websocket = new WebSocket('ws://localhost:8081/webSocket/'+this.userInfo.studentId);
+      }else{
+        alert('当前浏览器不支持websocket消息通知');
+      }
+
+      //连接成功建立的回调方法
+      this.websocket.onopen = function (event) {
+        console.log("ws建立连接成功");
+      }
+
+      //连接关闭的回调方法
+      this.websocket.onclose = function (event) {
+        console.log("ws连接关闭");
+      }
+
+      //接收到消息的回调方法
+      this.websocket.onmessage = function (event) {
+        // setMessageInnerHTML(event.data);
+        // alert("ws接收返回消息："+event.data);
+        _this.getOrderList()
+        _this.$message({
+          message: '你有新的订单哦',
+          type: 'success',
+          duration: 0,
+          showClose: true
+        })
+      }
+
+      //连接发生错误的回调方法
+      this.websocket.onerror = function(event){
+        alert('websocket通信发生错误！')
+      }
+
+      //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+      window.onbeforeunload = function() {
+        this.websocket.close();
+      }
     },
   },
   computed:{

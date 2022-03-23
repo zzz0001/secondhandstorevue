@@ -15,7 +15,7 @@
             <div>
               <el-image
                   style="width: 150px; height: 150px;border-radius: 6px"
-                  :src="item.images ? item.images.at(0) : ''"
+                  :src="item.images ? item.images[0] : ''"
                   fit="cover"></el-image>
             </div>
             <p class="my-goodsName">{{ item.goods.goodsName }}</p>

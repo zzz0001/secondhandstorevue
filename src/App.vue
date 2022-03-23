@@ -43,5 +43,14 @@ html, body, h1, h2, h3, h4, h5, h6, hr, p, dl, dt, dd, ul, ol, li, pre, button, 
   text-align: center;
   line-height: 30px;
 }
+::-webkit-scrollbar {
+  width: 5px; /*竖向*/
+  height: 5px;/*横向*/
+}
 
+/*滚动条的滑块*/
+::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 3px;
+}
 </style>

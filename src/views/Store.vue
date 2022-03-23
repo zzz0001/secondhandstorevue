@@ -22,7 +22,7 @@
             <div>
               <el-image
                   style="width: 150px; height: 150px;border-radius: 6px"
-                  :src="item.images ? item.images.at(0) : ''"
+                  :src="item.images ? item.images[0] : ''"
                   fit="cover"></el-image>
             </div>
             <p class="my-goodsName">{{ item.goods.goodsName }}</p>
@@ -63,6 +63,7 @@
       <el-button  type="primary" size="small" class="my-button3" @click="editStatus=0">修改商品</el-button>
       <el-button  type="primary" size="small" class="my-button4" @click="editStatus=1">删除商品</el-button>
       <el-button  type="primary" size="small" class="my-button5" @click="editStatus=2">添加库存</el-button>
+      <el-button  type="danger" size="" class="my-button6" @click="toStoreOrder">店铺订单</el-button>
     </div>
     <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
@@ -438,8 +439,10 @@ export default {
       return true
     },
     getDetail(goodsId) {
-      this.$router.push(`/goodsDetail/${goodsId}`
-      )
+      this.$router.push(`/goodsDetail/${goodsId}`)
+    },
+    toStoreOrder(){
+      this.$router.push('/storeOrder')
     },
   },
 }
@@ -454,10 +457,10 @@ export default {
 }
 
 .my-title {
-  color: #15b4f1;
-  font-size: 30px;
-  margin-left: 12vmax;
-  margin-top: -26px;
+   color: #15b4f1;
+   font-size: 30px;
+   margin-left: 12vmax;
+   margin-top: -26px;
 }
 
 .my-main-des {
@@ -508,15 +511,21 @@ export default {
 }
 .my-button4 {
   position: absolute;
-  top: 220px;
+  top: 260px;
   left: 88vmax;
   margin-left: 0px;
 }
 .my-button5 {
   position: absolute;
-  top: 260px;
+  top: 220px;
   left: 88vmax;
   margin-left: 0px;
+}
+.my-button6 {
+  position: absolute;
+  top: 310px;
+  left: 88vmax;
+  margin-left: -8px;
 }
 .el-form-item {
   margin-bottom: 18px;

@@ -15,6 +15,13 @@
       <el-button>下边</el-button>
     </el-tooltip>
 
+
+    <div class="ppp">
+      <div class="ch">
+
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -60,5 +67,15 @@ export default {
 }
 .my-goods-info{
   float: left;
+}
+.ppp{
+  height:100px;
+  width: 100px;
+  overflow: auto;
+}
+.ch{
+  height: 200px;
+  width: 200px;
+  background: #409EFF;
 }
 </style>

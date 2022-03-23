@@ -3,12 +3,13 @@
     <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
              class="el-icon-s-home">主页
     </el-link>
+    <h2 class="my-title"> 购物车 </h2>
     <el-table
         ref="multipleTable"
         border
         :data="orderList"
         tooltip-effect="dark"
-        style="width: 846px;margin: -10px auto 14px auto;font-size: 10px"
+        style="width: 846px;margin: 10px auto 14px auto;font-size: 10px"
         :row-style="{height: '100px'}"
         :cell-style="{padding: '0px 0px 0px 0px'}"
         @cell-click="toStore"
@@ -27,7 +28,7 @@
         <template slot-scope="images">
           <el-image
               style="width: 100px; height: 100px;border-radius: 2px;margin-left: -6px;margin-top: 4px"
-              :src="images ? images.row.images.at(0) : ''"
+              :src="images ? images.row.images[0] : ''"
               fit="cover">
           </el-image>
         </template>
@@ -242,7 +243,12 @@ export default {
   min-height: calc(100vh - 70px);
   background: #efe8e8;
 }
-
+.my-title {
+  color: #15b4f1;
+  font-size: 30px;
+  margin-left: 12vmax;
+  margin-top: -26px;
+}
 .my-price {
   font-size: 18px;
   color: red;
