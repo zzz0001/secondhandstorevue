@@ -212,7 +212,7 @@ export default {
     },
     toStore(row, column, cell, event){
       if (column.index === 4){
-        this.getStore(row.order.storeId)
+        this.getStore(row.goods.studentId)
       }else if(column.index === 0 || column.index === 7){
 
       }else {

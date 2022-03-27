@@ -16,11 +16,12 @@ axios.interceptors.request.use( config => {
 
 axios.interceptors.response.use( response => {
     // console.log(response.data);
+    let message
     if (response.data.code === 200){
         return response;
     }else if (response.data.code === 415){
         return response;
-    } else{
+    }else{
         ElementUI.Message({
             showClose: true,
             message: response.data.message,
@@ -31,10 +32,11 @@ axios.interceptors.response.use( response => {
 },error => {
     // console.log(error.response)
     let message;
-    if (error.response.code === 401){
+    if (error.response.data.code === 401){
         store.commit("REMOVE_USER");
         router.push("/login");
-    }else if(error.response.code === 404){
+        return
+    }else if(error.response.data.code === 404){
         message = "找不到该页面，请联系管理员";
     }else{
         message = error.response.data.message;

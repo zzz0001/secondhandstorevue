@@ -7,7 +7,7 @@
       <div v-for="(item,index) in collectionList.collection" class="my-collection-item">
         <div class="my-goods-item">
           <div>
-            <el-link  @click="getStore(item.store.storeId)" :underline="false">
+            <el-link  @click="getStore(item.goods.studentId)" :underline="false">
               <span class="my-store-name"><i class="el-icon-s-shop" style="font-size: 16px"></i>{{ item.store.storeName }}</span>
             </el-link>
           </div>
@@ -55,12 +55,7 @@ export default {
       })
     },
     getStore(storeId) {
-      this.$router.push({
-        name: 'Store',
-        params: {
-          storeId: storeId,
-        }
-      })
+      this.$router.push('/store/'+storeId)
     },
     getDetail(goodsId) {
       this.$router.push(`/goodsDetail/${goodsId}`
@@ -97,7 +92,7 @@ export default {
 
 .my-collection-info {
   overflow: hidden;
-  margin-left: 14vmax;
+  margin-left: 12vmax;
   margin-top: 0px;
   max-width: 80vmax;
   min-width: 80vmax;

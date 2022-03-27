@@ -1,6 +1,6 @@
 <template>
   <div id="chat">
-    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+    <el-link @click="$router.back(0)" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
              class="el-icon-arrow-left">返回
     </el-link>
     <div>
@@ -53,6 +53,7 @@ export default {
       chatRecord: [],
       chat: {},
       messagesContainerTimer: {},
+      noReadList: [],
     }
   },
   created() {
@@ -62,11 +63,18 @@ export default {
     this.chat.sendId = this.userInfo.studentId
     this.chat.receiveId = this.chatStudentId
     this.getChat()
+    this.initWebSocket()
+  },
+  mounted() {
+  },
+  destroyed() {
+    this.websocket.close()
   },
   methods:{
     getChat(){
       this.$axios.get('/chat/'+ this.chatStudentId).then(res =>{
         this.chatRecord = res.data.data
+        this.chatRecord.reverse()
         this.messagesContainerTimer = setTimeout(()=>{
           this.$refs.chatmain.scrollTop = this.$refs.chatmain.scrollHeight;
           // console.log("当前滚动条位置:"+this.$refs.chatmain.scrollTop);
@@ -74,6 +82,7 @@ export default {
           // 清理定时器
           clearTimeout(this.messagesContainerTimer);
         },0);
+        this.isRead()
       }).catch(err =>{
         console.log(err);
       })
@@ -86,74 +95,67 @@ export default {
       })
     },
     sendMessage(){
-      this.chat.message = this.message
       if (this.message.match(/^[ ]*$/)) {
         this.$message.warning("不能发送空消息哦")
         return false
-      } else {
-        this.$axios.post('/chat',this.chat).then(res =>{
-          console.log(this.chat);
-          console.log(this.message)
-          let newChat = {}
-          newChat=JSON.parse(JSON.stringify(this.chat));
-          this.chatRecord.push(newChat)
-          this.message = ""
-          this.messagesContainerTimer = setTimeout(()=>{
-            this.$refs.chatmain.scrollTop = this.$refs.chatmain.scrollHeight;
-            // console.log("当前滚动条位置:"+this.$refs.chatmain.scrollTop);
-            // console.log("当前可滚动区域容器的高度:"+this.$refs.chatmain.scrollHeight);
-            // 清理定时器
-            clearTimeout(this.messagesContainerTimer);
-          },0);
-        }).catch(err =>{
-          console.log(err);
-        })
       }
+      this.chat.message = this.message
+      let newChat = {}
+      newChat=JSON.parse(JSON.stringify(this.chat));
+      this.chatRecord.push(newChat)
+      this.message = ''
+      const sendMes = JSON.stringify(this.chat)
+      this.websocket.send(sendMes)
+    },
+    isRead(){
+      const length = this.chatRecord.length
+      for (let i = 0; i < length; i++) {
+        if (this.chatRecord[i].isRead === 1){
+          this.noReadList.push(this.chatRecord[i].chatId)
+        }
+      }
+      this.$axios.post("chatList",this.noReadList).then(res =>{
+      }).catch(err =>{
+        console.log(err);
+      })
     },
     initWebSocket(){
       const _this = this
       if('WebSocket' in window){
-        this.websocket = new WebSocket('ws://localhost:8081/webSocket/'+this.userInfo.studentId);
+        this.websocket = new WebSocket('ws://localhost:8081/webSocket/chat/chat'+this.userInfo.studentId);
       }else{
         alert('当前浏览器不支持websocket消息通知');
-      }
-
-      //连接成功建立的回调方法
-      this.websocket.onopen = function (event) {
-        console.log("ws建立连接成功");
-      }
-
-      //连接关闭的回调方法
-      this.websocket.onclose = function (event) {
-        console.log("ws连接关闭");
       }
 
       //接收到消息的回调方法
       this.websocket.onmessage = function (event) {
         // setMessageInnerHTML(event.data);
         // alert("ws接收返回消息："+event.data);
-        _this.getOrderList()
-        _this.$message({
-          message: '你有新的订单哦',
-          type: 'success',
-          duration: 0,
-          showClose: true
-        })
+        if (event.data){
+          const receiveMsg = JSON.parse(event.data)
+          let newChat = {}
+          newChat.sendId = receiveMsg.fromName
+          newChat.message = receiveMsg.message
+          _this.chatRecord.push(newChat)
+        }
       }
-
-      //连接发生错误的回调方法
-      this.websocket.onerror = function(event){
-        alert('websocket通信发生错误！')
-      }
-
       //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
       window.onbeforeunload = function() {
         this.websocket.close();
       }
     },
   },
-  watch: {
-  },
+  watch:{
+    chatRecord(){
+      this.messagesContainerTimer = setTimeout(()=>{
+        this.$refs.chatmain.scrollTop = this.$refs.chatmain.scrollHeight;
+        // console.log("当前滚动条位置:"+this.$refs.chatmain.scrollTop);
+        // console.log("当前可滚动区域容器的高度:"+this.$refs.chatmain.scrollHeight);
+        // 清理定时器
+        clearTimeout(this.messagesContainerTimer);
+      },0);
+    },
+  }
 
 }
 </script>
@@ -199,7 +201,7 @@ export default {
 }
 .my-submit-button{
   position: absolute;
-  top: 480px;
+  top: 510px;
   left: 950px;
 }
 .chat-user{

@@ -20,7 +20,7 @@
           <el-input v-model.number="account.password2" placeholder="确认6位支付密码"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="onSubmitAccount('account')" style="margin-left: 20px;margin-bottom: 0px">
+          <el-button type="primary" @click="onSubmitAccount" style="margin-left: 20px;margin-bottom: 0px">
             开通
           </el-button>
           <el-button @click="closePopover2" style="margin-left: 30px;margin-right: 40px;margin-bottom: 0px">取消
@@ -193,7 +193,8 @@
 
 export default {
   name: "UserInfo",
-  components: {},
+  components: {
+  },
   data() {
     const checkPassword = (rule, value, callback) => {
       const numReg = /^\d{6}$/
@@ -308,8 +309,8 @@ export default {
       this.isShow = true
       this.$refs.editPopover.doClose()
     },
-    onSubmitAccount(formName) {
-      this.$refs[formName].validate((valid) => {
+    onSubmitAccount() {
+      this.$refs.account.validate((valid) => {
         if (valid) {
           const _this = this
           this.$axios.post('/account',this.account).then(res =>{

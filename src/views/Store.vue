@@ -1,17 +1,17 @@
 <template>
   <div id="store">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
     <h2 class="my-title"> {{ store.storeName ? store.storeName : '我的店铺' }}</h2>
     <span class="my-storeIntroduce">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {{store.storeIntroduce ? store.storeIntroduce : '这是店铺描述哦~' }}</span>
-    <el-button v-if="owner" type="primary" size="small" class="my-button" @click="dialogFormVisible = true">修改店铺信息
+    <el-button v-if="owner && userInfo.status === 3" type="primary" size="small" class="my-button" @click="dialogFormVisible = true">修改店铺信息
     </el-button>
-    <div v-if="userInfo.status === 0" class="my-main-des">
+    <div v-if="userInfo.status === 0 && owner" class="my-main-des">
       <el-button type="primary" @click="to('/userInfo')"> 开通账户</el-button>
       <div style="margin-left: 10px;margin-top: 20px">你需要先开通账户,才能开通店铺哦</div>
     </div>
-    <div v-else-if="userInfo.status === 2" class="my-main-des">
+    <div v-else-if="userInfo.status === 2 && owner" class="my-main-des">
       <el-button type="primary" @click="dialogFormVisible = true"> 开通店铺</el-button>
       <div style="margin-left: 2px;margin-top: 20px">你还没开通店铺哦</div>
     </div>
@@ -58,12 +58,18 @@
         <el-button v-else type="primary" @click="changeStore('store')">修改</el-button>
       </div>
     </el-dialog>
-    <div v-if="owner">
+    <div v-if="owner && userInfo.status === 3">
       <el-button type="primary" size="small" class="my-button2" @click="addGoods">添加商品</el-button>
       <el-button  type="primary" size="small" class="my-button3" @click="editStatus=0">修改商品</el-button>
       <el-button  type="primary" size="small" class="my-button4" @click="editStatus=1">删除商品</el-button>
       <el-button  type="primary" size="small" class="my-button5" @click="editStatus=2">添加库存</el-button>
-      <el-button  type="danger" size="" class="my-button6" @click="toStoreOrder">店铺订单</el-button>
+      <el-button type="danger" plain size="" class="my-button6" @click="toStoreOrder">店铺订单</el-button>
+      <el-badge :value="$store.state.newNum" v-show="$store.state.newNum>0" class="item" >
+      </el-badge>
+    </div>
+    <div class="my-chat" @click="toChat" v-if="!owner">
+      <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
+      <p style="font-size: 16px;color: #38383b">客服</p>
     </div>
     <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
@@ -76,7 +82,7 @@
           <el-input type="textarea" :autosize="{ minRows: 1, maxRows: 6}" v-model="goods.goodsIntroduce"></el-input>
         </el-form-item>
         <el-form-item label="商品类别" label-width="80px" prop="goodsCategory">
-          <el-select v-model="goods.goodsCategory" placeholder="请选择" size="medium" style="width:370px">
+          <el-select v-model="goods.goodsCategory" placeholder="请选择" size="medium" style="width:425px">
             <el-option
                 v-for="item in goodsCategory"
                 :key="item.value"
@@ -120,8 +126,8 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer2">
-        <el-button @click="closeGoods('goods')">取消</el-button>
-        <el-button @click="postGoods('goods')" type="primary">上传</el-button>
+        <el-button @click="closeGoods">取消</el-button>
+        <el-button @click="postGoods" type="primary">上传</el-button>
       </div>
     </el-dialog>
   </div>
@@ -181,7 +187,7 @@ export default {
       goodsCategory: [
         {
           value: 1,
-          label: '生活用品(洗面奶、洗衣粉、盆...)'
+          label: '生活用品(护肤品、保温瓶、塑料盆...)'
         }, {
           value: 2,
           label: '书籍'
@@ -213,49 +219,56 @@ export default {
       editFlag: false,
       editStatus: 0,
       owner: true,
+      storeId: 0,
     }
   },
   created() {
+    this.getUser()
     this.header.Authorization = this.$store.state.token
-    const storeId = this.$route.params.storeId
-    if (storeId){
+    this.storeId = this.$route.params.storeId
+    if (parseInt(this.storeId) !== this.$store.state.userInfo.studentId){
       this.owner = false;
     }
-    this.getUser()
     this.getStore()
     this.getGoods()
   },
   compute: {},
   methods: {
     getUser() {
-      const _this = this
       const studentId = this.$store.state.userInfo.studentId
       this.store.studentId = studentId
       this.$axios.get('/user/' + studentId).then(res => {
-        _this.userInfo = res.data.data
-        _this.$store.commit('SET_USERINFO', res.data.data)
+        this.userInfo = res.data.data
+        this.$store.commit('SET_USERINFO', res.data.data)
       }).catch(err => {
         console.log(err);
       })
     },
     getStore() {
-      const _this = this
-      const studentId = this.$store.state.userInfo.studentId
-      this.store.studentId = studentId
+      let studentId = ""
+      if (this.owner){
+        studentId = this.$store.state.userInfo.studentId
+      }else {
+        studentId = this.storeId
+      }
       this.$axios.get('/storeByStudentId/' + studentId).then(res => {
         if (res.data.data) {
-          _this.store = res.data.data
+          this.store = res.data.data
         }
       }).catch(err => {
         console.log(err);
       })
     },
     getGoods() {
-      const _this = this
-      const studentId = this.$store.state.userInfo.studentId
+      let studentId = ""
+      if (this.owner){
+        studentId = this.$store.state.userInfo.studentId
+      }else {
+        studentId = this.storeId
+      }
       this.$axios.get('/goodsByStudentId/' + studentId).then(res => {
         if (res.data.data) {
-          _this.goodsList = res.data.data
+          this.goodsList = res.data.data
         }
       }).catch(err => {
         console.log(err);
@@ -345,8 +358,8 @@ export default {
         console.log(err);
       })
     },
-    postGoods(formName) {
-      this.$refs[formName].validate((valid) => {
+    postGoods() {
+      this.$refs.goods.validate((valid) => {
         if (valid) {
           const _this = this
           if (this.editFlag) {
@@ -406,13 +419,13 @@ export default {
         console.log(err);
       })
     },
-    closeGoods(formName) {
+    closeGoods() {
       this.dialogFormVisible2 = false
       this.editFlag = false
       this.goods = {}
       this.goods.images = []
       this.$refs.upload.clearFiles()
-      this.$refs[formName].resetFields();
+      this.$refs.goods.resetFields();
     },
     editGoods(index) {
       this.editFlag = true
@@ -444,7 +457,27 @@ export default {
     toStoreOrder(){
       this.$router.push('/storeOrder')
     },
+    toChat(){
+      this.$router.push("/chat/"+this.goodsList[0].goods.studentId)
+    }
   },
+  computed:{
+
+  },
+  watch: {
+    '$route' (to, from) {
+      this.store = {}
+      this.owner = true
+      this.getUser()
+      this.header.Authorization = this.$store.state.token
+      this.storeId = this.$route.params.storeId
+      if (parseInt(this.storeId) !== this.$store.state.userInfo.studentId){
+        this.owner = false;
+      }
+      this.getStore()
+      this.getGoods()
+    },
+  }
 }
 </script>
 
@@ -501,6 +534,11 @@ export default {
   position: absolute;
   top: 140px;
   left: 88vmax;
+}
+.my-chat{
+  position: absolute;
+  top: 140px;
+  left: 90vmax;
 }
 
 .my-button3 {
@@ -580,5 +618,10 @@ export default {
   position: absolute;
   margin-top: 105px;
   margin-left: -45px;
+}
+.item{
+  position: absolute;
+  top: 300px;
+  left: 1276px;
 }
 </style>

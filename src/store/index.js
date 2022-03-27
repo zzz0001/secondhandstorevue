@@ -7,7 +7,9 @@ export default new Vuex.Store({
   state: {
     token: localStorage.getItem('token'),
     userInfo: JSON.parse(localStorage.getItem('userInfo')),
-    isLogin: localStorage.getItem('isLogin')
+    isLogin: localStorage.getItem('isLogin'),
+    newNum: localStorage.getItem('newNum'),
+    newChat: localStorage.getItem('newChat'),
   },
   mutations: {
     SET_TOKEN:((state, token) =>{
@@ -28,6 +30,22 @@ export default new Vuex.Store({
       state.isLogin = loginStatus
       localStorage.setItem('isLogin',loginStatus)
     }),
+    NewNum:((state,newNum) => {
+      state.newNum = newNum
+      localStorage.setItem('newNum',newNum)
+    }),
+    RemoveNum:(state => {
+      state.newNum = 0
+      localStorage.removeItem("newNum")
+    }),
+    NewChat:((state,newChat) => {
+      state.newChat = newChat
+      localStorage.setItem('newChat',newChat)
+    }),
+    RemoveChat:(state => {
+      state.newChat = 0
+      localStorage.removeItem('newChat')
+    }),
   },
   actions: {
   },
@@ -39,7 +57,7 @@ export default new Vuex.Store({
     }),
     getUserInfo:(state => {
       return state.userInfo
-    })
+    }),
   }
 
 })

@@ -1,7 +1,7 @@
 <template>
   <div id="order">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
     <h2 class="my-title"> 店铺订单 </h2>
     <div>
@@ -123,9 +123,9 @@ export default {
   created() {
     this.userInfo = this.$store.state.userInfo
     this.getOrderList()
+    this.$store.commit("RemoveNum")
   },
   mounted() {
-    this.initWebSocket(); //页面渲染的时候，对ws进行初始化
   },
   data() {
     return {
@@ -141,18 +141,12 @@ export default {
       const _this = this
       this.$axios.get('/orderListByStoreId/1').then(res => {
         this.orderList = res.data.data
-        console.log(res.data.data);
       }).catch(err => {
         console.log(err);
       })
     },
-    getUser(storeId){
-      // this.$router.push({
-      //   name: 'Store',
-      //   params :{
-      //     storeId: storeId,
-      //   }
-      // })
+    getUser(studentId){
+      this.$router.push('/chat/'+studentId)
     },
     GoodsDetail(goodsId){
       this.$router.push(`/goodsDetail/${goodsId}`)
@@ -195,49 +189,17 @@ export default {
     to(path){
       this.$router.push(path)
     },
-    initWebSocket(){
-      const _this = this
-      if('WebSocket' in window){
-        this.websocket = new WebSocket('ws://localhost:8081/webSocket/'+this.userInfo.studentId);
-      }else{
-        alert('当前浏览器不支持websocket消息通知');
-      }
-
-      //连接成功建立的回调方法
-      this.websocket.onopen = function (event) {
-        console.log("ws建立连接成功");
-      }
-
-      //连接关闭的回调方法
-      this.websocket.onclose = function (event) {
-        console.log("ws连接关闭");
-      }
-
-      //接收到消息的回调方法
-      this.websocket.onmessage = function (event) {
-        // setMessageInnerHTML(event.data);
-        // alert("ws接收返回消息："+event.data);
-        _this.getOrderList()
-        _this.$message({
-          message: '你有新的订单哦',
-          type: 'success',
-          duration: 0,
-          showClose: true
-        })
-      }
-
-      //连接发生错误的回调方法
-      this.websocket.onerror = function(event){
-        alert('websocket通信发生错误！')
-      }
-
-      //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
-      window.onbeforeunload = function() {
-        this.websocket.close();
-      }
-    },
   },
   computed:{
+    getNewNum(){
+      return this.$store.state.newNum
+    },
+  },
+  watch:{
+    getNewNum(){
+      this.getOrderList()
+      this.$store.commit("NewNum",0)
+    }
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div id="goodsDetail">
-    <el-link @click="to('/store')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
              class="el-icon-arrow-left">返回
     </el-link>
     <div class="block">
@@ -19,7 +19,7 @@
         <h3 style="max-height: 42px;overflow: hidden;width: 400px;margin-bottom: 6px;">{{ goods.goods.goodsName }}</h3>
         <div style="background: rgba(253,236,236,0.8);margin-left: -8px">
           <span style="color: red;font-size: 28px;width: 240px;display:inline-block;margin-left: 8px"> ¥ {{ TotalPrice.toFixed(2) }} </span>
-          <span style="margin-left: 90px;font-size: 16px"> 库存: {{ goods.goods.goodsInventory }}</span>
+          <span style="margin-left: 84px;font-size: 16px"> 库存: {{ goods.goods.goodsInventory }}</span>
         </div>
         <p style="width: 400px;margin-bottom: 6px;margin-top: 8px;font-size: 16px">描述:</p>
         <p style="font-size: 16px;max-height: 84px;min-height: 84px;overflow: hidden;">&nbsp;&nbsp;&nbsp;
@@ -169,15 +169,10 @@ export default {
       this.$router.push(path)
     },
     toStore(){
-      this.$router.push({
-        name: 'Store',
-        params: {
-          storeId: this.store.storeId,
-        }
-      })
+      this.$router.push('/store/'+this.goods.goods.studentId)
     },
     toChat(){
-
+      this.$router.push("/chat/"+this.goods.goods.studentId)
     }
   },
   computed: {

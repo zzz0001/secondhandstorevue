@@ -93,7 +93,7 @@
           <el-button v-if="order.row.order.orderStatus === 0 " @click="payment(order.row.order.orderId)" type="danger"  size="medium" >付款</el-button>
           <el-button v-if="order.row.order.orderStatus === 1 " @click="quick(order.row.order.orderId)" type="danger"  size="small"  >催发货</el-button>
           <el-button v-if="order.row.order.orderStatus === 2 " @click="receive(order.row.order.orderId)" type="danger"  size="small" >确认收货</el-button>
-          <el-button v-if="order.row.order.orderStatus === 3 " @click="receive(order.row.order.orderId)" type="danger"  size="small" >评价</el-button>
+          <el-button v-if="order.row.order.orderStatus === 3 " @click="toComment(order.row.order.goodsId,order.row.order.orderId)" type="danger"  size="small" >评价</el-button>
           <el-button v-if="order.row.order.orderStatus === 4 " @click="returnGoods(order.row.order.orderId)" type="danger"  size="small" >退货</el-button>
         </template>
       </el-table-column>
@@ -107,12 +107,57 @@
              <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
              <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
              <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+<!--             <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}-->
              <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
            </el-tooltip>
+           <el-button v-if="order.row.order.orderStatus === 0 " @click="removeOrder(order.row.order.orderId)" type="danger"  size="medium" class="my-remove-order">删除</el-button>
          </template>
       </el-table-column>
     </el-table>
+
+    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px">
+      <el-form :model="comment" ref="comment" :rules="rules">
+        <el-form-item label="星级" label-width="80px" prop="grade">
+          <div class="my-grade">
+            <el-rate
+                v-model="comment.grade"
+                :colors="colors">
+            </el-rate>
+          </div>
+        </el-form-item>
+        <el-form-item label="评价" label-width="80px" prop="content">
+          <el-input
+              type="textarea"
+              :rows="4"
+              placeholder="请输入内容"
+              v-model="comment.content" style="width: 500px">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="上传图片" label-width="80px" >
+          <el-upload
+              action="http://localhost:8081/image/upload"
+              list-type="picture-card"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+              :limit="5"
+              :headers="header"
+              :on-exceed="MaxFile"
+              :on-success="success"
+              ref="upload"
+          >
+            <i class="el-icon-plus"></i>
+          </el-upload>
+          <el-dialog :visible.sync="dialogVisible">
+            <img width="100%" :src="dialogImageUrl" alt="">
+          </el-dialog>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeComment">取 消</el-button>
+        <el-button type="primary" @click="postComment">确 定</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
@@ -120,34 +165,56 @@
 <script>
 export default {
   name: "order",
-  created() {
-    this.userInfo = this.$store.state.userInfo
-    this.getOrderList()
-  },
   data() {
     return {
       userInfo: {},
       orderList: [],
       orderVo: {},
+      header: {
+        'Authorization': ''
+      },
       activeName: 'first',
+      dialogFormVisible: false,
+      commentForm:{
+
+      },
+      dialogImageUrl: '',
+      dialogVisible: false,
+      comment:{
+        studentId: 0,
+        goodsId: 0,
+        content: '',
+        grade: 3,
+        orderId: 0,
+        images: [],
+      },
+      rules: {
+        grade: [
+          {required: true, message: '请打评分', trigger: 'blur'},
+        ],
+        content: [
+          {required: true, message: '请输入商品评价', trigger: 'blur'},
+          {min: 5, max: 250, message: '长度在 5 到 250 个字符之间', trigger: 'blur'}
+        ],
+      },
+      colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
     }
   },
+  created() {
+    this.userInfo = this.$store.state.userInfo
+    this.header.Authorization = this.$store.state.token
+    this.getOrderList(0)
+  },
   methods: {
-    getOrderList() {
-      const _this = this
-      this.$axios.get('/orderListByStatus/0').then(res => {
+    getOrderList(status) {
+      this.$axios.get('/orderListByStatus/'+status).then(res => {
         this.orderList = res.data.data
       }).catch(err => {
         console.log(err);
       })
     },
     getStore(storeId){
-      this.$router.push({
-        name: 'Store',
-        params :{
-          storeId: storeId,
-        }
-      })
+      this.$router.push('/store/'+storeId)
     },
     GoodsDetail(goodsId){
       this.$router.push(`/goodsDetail/${goodsId}`)
@@ -163,7 +230,7 @@ export default {
         this.orderVo.password = value
         this.$axios.put('/order',this.orderVo).then(res =>{
           _this.$message.success("付款成功")
-          _this.getOrderList()
+          _this.getOrderList(0)
         }).catch(err =>{
           console.log(err);
         })
@@ -174,20 +241,11 @@ export default {
     quick(){
 
     },
-    delivery(orderId){
-      const _this = this
-      this.$axios.put('/order/deliver/'+orderId).then(res =>{
-        _this.$message.success("发货成功")
-        _this.getOrderList()
-      }).catch(err =>{
-        console.log(err);
-      })
-    },
     receive(orderId){
       const _this = this
       this.$axios.put('/order/receive/'+orderId).then(res =>{
         _this.$message.success("收货成功")
-        _this.getOrderList()
+        _this.getOrderList(2)
       }).catch(err =>{
         console.log(err);
       })
@@ -205,7 +263,7 @@ export default {
     },
     toStore(row, column, cell, event){
       if (column.index === 3){
-        this.getStore(row.order.storeId)
+        this.getStore(row.goods.studentId)
       }else if(column.index >= 6 ){
 
       }else {
@@ -219,6 +277,89 @@ export default {
     to(path){
       this.$router.push(path)
     },
+    removeOrder(orderId){
+      this.$confirm('此操作将该订单删除, 是否继续?', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.delete('/order/'+orderId).then(res =>{
+          this.$message.success("删除成功")
+          this.getOrderList()
+        }).catch(err =>{
+          console.log(err);
+        })
+      }).catch(() => {
+        this.$message.info("已取消删除")
+      });
+    },
+    toComment(goodsId,orderId){
+      this.dialogFormVisible = true
+      this.comment.studentId = this.userInfo.studentId
+      this.comment.goodsId = goodsId
+      this.comment.orderId = orderId
+    },
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+      let param = {path: file.response.data}
+      this.$axios.delete('/image/remove', {params: param}).then(res => {
+        console.log(res);
+        this.removeImage(file.response.data)
+      }).catch(err => {
+        console.log(err);
+      })
+    },
+    removeImage(value) {
+      const index = this.comment.images.indexOf(value);
+      if (index > -1) {
+        this.comment.images.splice(index, 1);
+      }
+    },
+    handlePictureCardPreview(file) {
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    },
+    success(response, file, fileList) {
+      this.comment.images.push(response.data)
+    },
+    MaxFile() {
+      this.$message.warning("最多只能上传5张图片哦")
+    },
+    deleteImages() {
+      const length = this.comment.images.length
+      for (let i = 0; i <length ; i++) {
+        let param = {path: this.comment.images[i]}
+        this.$axios.delete('/image/remove', {params: param}).then(res => {
+          console.log(res);
+        }).catch(err => {
+          console.log(err);
+        })
+      }
+    },
+    postComment(){
+      this.$refs.comment.validate((valid) => {
+        if (valid) {
+          this.$axios.post('/comment',this.comment).then(res =>{
+            this.$message.success("评价成功")
+            this.dialogFormVisible = false
+            this.getOrderList(3)
+          }).catch(err =>{
+            console.log(err);
+          })
+        }else{
+          return false
+        }
+      })
+    },
+    closeComment(){
+      this.dialogFormVisible = false
+      this.editFlag = false
+      this.deleteImages()
+      this.comment.content = ''
+      this.comment.images = []
+      this.$refs.upload.clearFiles()
+      this.$refs.comment.resetFields();
+    }
   },
   computed:{
   }
@@ -248,5 +389,19 @@ export default {
 }
 .el-table--border::after{
   width: 0px;
+}
+.my-remove-order{
+  position: absolute;
+  top: 37px;
+  left: 8px;
+}
+.dialog-footer {
+  margin-top: -30px;
+}
+.my-grade{
+  height: 40px;
+}
+/deep/ .el-rate__icon{
+  font-size: 30px;
 }
 </style>

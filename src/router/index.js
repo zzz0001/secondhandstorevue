@@ -36,7 +36,7 @@ const routes = [
     component: () => import('../views/EditUserInfo')
   },
   {
-    path: '/store',
+    path: '/store/:storeId',
     name: 'Store',
     component: () => import('../views/Store')
   },
@@ -69,7 +69,28 @@ const routes = [
     path: '/chat/:chatStudentId',
     name: 'Chat',
     component: () => import('../views/Chat')
-  }
+  },
+  {
+    path: '/chatList',
+    name: 'ChatList',
+    component: () => import('../views/ChatList')
+  },
+  {
+    path: '/userDetail/:studentId',
+    name: 'UserDetail',
+    component: () => import('../views/UserDetail')
+  },
+  {
+    path: '/goodsQuery',
+    name: 'GoodsQuery',
+    component: () => import('../views/GoodsQuery')
+  },
+  {
+    path: '*',
+    name: 'NotFind',
+    component: () => import('../views/NotFind')
+  },
+
 ]
 
 const router = new VueRouter({
