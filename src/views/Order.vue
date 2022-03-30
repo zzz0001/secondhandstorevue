@@ -94,7 +94,9 @@
           <el-button v-if="order.row.order.orderStatus === 1 " @click="quick(order.row.order.orderId)" type="danger"  size="small"  >催发货</el-button>
           <el-button v-if="order.row.order.orderStatus === 2 " @click="receive(order.row.order.orderId)" type="danger"  size="small" >确认收货</el-button>
           <el-button v-if="order.row.order.orderStatus === 3 " @click="toComment(order.row.order.goodsId,order.row.order.orderId)" type="danger"  size="small" >评价</el-button>
-          <el-button v-if="order.row.order.orderStatus === 4 " @click="returnGoods(order.row.order.orderId)" type="danger"  size="small" >退货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 4 " @click="returnGoods(order.row.order.orderId)" type="danger"  size="medium" >退货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 5 " type="danger"  size="small" >退货中</el-button>
+          <el-button v-if="order.row.order.orderStatus === 6 " type="primary"  size="small" >已退款</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -239,19 +241,23 @@ export default {
       })
     },
     quick(){
-
+      this.$message.success("已经提醒商家发货")
     },
     receive(orderId){
-      const _this = this
       this.$axios.put('/order/receive/'+orderId).then(res =>{
-        _this.$message.success("收货成功")
-        _this.getOrderList(2)
+        this.$message.success("收货成功")
+        this.getOrderList(2)
       }).catch(err =>{
         console.log(err);
       })
     },
     returnGoods(orderId){
-
+      this.$axios.put('/order/requestReturn/'+orderId).then(res =>{
+        this.$message.success("退货申请发送成功")
+        this.getOrderList(4)
+      }).catch(err =>{
+        console.log(err)
+      })
     },
     handleClick(tab) {
       const _this = this
@@ -285,7 +291,7 @@ export default {
       }).then(() => {
         this.$axios.delete('/order/'+orderId).then(res =>{
           this.$message.success("删除成功")
-          this.getOrderList()
+          this.getOrderList(0)
         }).catch(err =>{
           console.log(err);
         })

@@ -37,7 +37,10 @@
       <span class="el-icon-s-finance" style="color: #424040">账户被锁定 </span>
     </div>
     <div v-else style="position:absolute;margin-left: 69vmax;margin-top: 20px;font-size: 16px;">
-      <span class="el-icon-s-finance" style="color: #424040">账户余额 : ¥ {{ account.money.toFixed(2) }}</span>
+
+      <span class="el-icon-s-finance" style="color: #424040">
+        <el-link @click="toAccount" :underline="false" style="font-size: 16px;margin-bottom: 4px">账户余额 : ¥ {{ account.money.toFixed(2) }}   </el-link>
+      </span>
       <div style="margin-top: 10px">
         <el-button type="primary" @click="addMoney()">充值</el-button>
         <el-button @click="reduceMoney()" style="position: absolute;margin-left: 16px">提现</el-button>
@@ -402,6 +405,9 @@ export default {
         });
       });
     },
+    toAccount(){
+      this.$router.push('/accountInfo')
+    }
   }
 }
 </script>

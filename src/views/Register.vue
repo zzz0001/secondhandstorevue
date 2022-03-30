@@ -128,7 +128,7 @@ export default {
 }
 
 .my-login-form {
-  background: #ffffff;
+  background: #F1F6F9;
   padding-top: 0px;
   padding-right: 20px;
   width: 300px;

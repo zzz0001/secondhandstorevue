@@ -27,7 +27,7 @@
         <div style="background: ghostwhite;margin-bottom: 14px;margin-top: 4px">
           <span>数量:</span>
           <el-input-number size="small" v-model="order.goodsNum" :min="1" :max="goods.goods.goodsInventory"
-                           style="margin-left: 20px"></el-input-number>
+                           style="margin-left: 14px"></el-input-number>
           <span style="margin-left: 170px;">
             <span v-if="goods.goods.goodsInventory < 1" style="color: red;font-size: 18px">缺货</span>
             <span v-else>有货</span>
@@ -39,9 +39,48 @@
               class="el-icon-shopping-cart-full"></i> 加入购物车
           </el-button>
         </div>
-        <el-link @click="collectionGoods" style="margin-left: 320px;margin-top: 6px" :underline="false"><i class="el-icon-star-off"/>收藏商品</el-link>
+        <el-link @click="collectionGoods" style="margin-left: 320px;margin-top: 6px" :underline="false"><i class="el-icon-star-off" style="color: #FF6200"/>收藏商品</el-link>
       </div>
     </div>
+
+    <div class="clear"></div>
+
+    <div class="my-goods-comment">
+      <p style="font-size: 18px;color: #FF6200"> 商品评价 </p>
+      <div v-for="item in comments.comment" class="my-goods-comment-item">
+        <div @click="toUser(item.user.studentId)">
+          <el-avatar  class="my-contact-picture" fit="cover" :src="item ? item.user.picture : '/user/123abc.jpeg'" ></el-avatar>
+          <p style="padding-top: 14px;float: left;margin-left: 10px;width: 200px"> {{item.user.userName}} </p>
+          <div style="margin-left: 500px;padding-top: 10px">
+            <el-rate
+                      v-model="item.comment.grade"
+                      disabled
+                      text-color="#ff9900"
+                      score-template="{value}">
+            </el-rate>
+          </div>
+        </div>
+        <div class="clear"></div>
+        <div>
+          <p style="margin-top: 6px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.comment.content}}</p>
+        </div>
+      </div>
+      <div v-if="comments.comment.length === 0">
+        <p style="text-align: center;width: 700px;font-size: 18px;color: #FF6200;"><i class="el-icon-s-promotion"></i> 该商品暂时没有评价哦</p>
+      </div>
+    </div>
+
+    <div class="my-page-style">
+      <el-pagination
+          background
+          layout="prev, pager, next"
+          @current-change="changePage"
+          :hide-on-single-page="true"
+          :current-page="page"
+          :total="comments.page.total">
+      </el-pagination>
+    </div>
+
     <div class="toStore" @click="toStore">
       <i class="el-icon-s-shop" style="font-size: 30px;color: #409EFF"></i>
       <p style="font-size: 16px;color: #38383b">店铺</p>
@@ -84,11 +123,17 @@ export default {
         studentId: 0,
         goodsCategory: 0,
       },
+      comments:{
+        comment: [],
+        page: {},
+      },
+      page: 1,
     }
   },
   created() {
     this.getGoods()
     this.getStore()
+    this.getComment()
   },
   methods: {
     getGoods() {
@@ -97,6 +142,13 @@ export default {
       this.$axios.get('/goods/' + this.goodsId).then(res => {
         _this.goods = res.data.data
       }).catch(err => {
+        console.log(err);
+      })
+    },
+    getComment(page){
+      this.$axios.get("/comment/page/"+ this.goodsId +"/"+this.page).then(res =>{
+        this.comments = res.data.data
+      }).catch(err =>{
         console.log(err);
       })
     },
@@ -173,7 +225,14 @@ export default {
     },
     toChat(){
       this.$router.push("/chat/"+this.goods.goods.studentId)
-    }
+    },
+    toUser(studentId){
+      this.$router.push("/userDetail/"+studentId)
+    },
+    changePage(newPage) {
+      this.page = newPage
+      this.getComment()
+    },
   },
   computed: {
     TotalPrice() {
@@ -222,5 +281,31 @@ export default {
   position: absolute;
   top: 80px;
   left: 80vmax;
+}
+.clear{
+  clear:both;
+}
+.my-goods-comment{
+  width: 800px;
+  margin: 20px auto 10px auto;
+}
+.my-goods-comment-item{
+  width: 750px;
+  margin-left: 0px;
+  margin-top: 4px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  background-image: linear-gradient(to right, #a8edea 0%, #e5d3d7 100%);
+}
+.my-contact-picture{
+  float: left;
+  margin-top: 5px;
+  height: 40px;
+  width: 40px;
+}
+.my-page-style{
+  text-align: center;
+  width: 500px;
+  margin: 14px auto 14px auto;
 }
 </style>

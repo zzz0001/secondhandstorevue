@@ -91,10 +91,11 @@
       >
         <template slot-scope="order">
           <el-button v-if="order.row.order.orderStatus === 1" @click="deliver(order.row.order.orderId)" type="danger"  size="small"  >发货</el-button>
-          <el-button v-if="order.row.order.orderStatus === 2"  type="danger"  size="small" >已发货</el-button>
-          <el-button v-if="order.row.order.orderStatus === 3"  type="danger"  size="small" >已收货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 2"  type="primary"  size="small" >已发货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 3"  type="primary"  size="small" >已收货</el-button>
           <el-button v-if="order.row.order.orderStatus === 4"  type="primary" size="small" >已评价</el-button>
           <el-button v-if="order.row.order.orderStatus === 5" @click="returnGoods(order.row.order.orderId)" type="danger"  size="small" >确认退货</el-button>
+          <el-button v-if="order.row.order.orderStatus === 6"  type="primary"  size="small" >已退款</el-button>
         </template>
       </el-table-column>
       <el-table-column
@@ -103,11 +104,12 @@
           align="center">
          <template slot-scope="order">
            <el-tooltip class="item" effect="light" placement="bottom-start">
-             <div v-if="order.row.order.orderStatus === 0" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} </div>
-             <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
-             <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
+             <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 6" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
              <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
            </el-tooltip>
          </template>
@@ -122,7 +124,7 @@ export default {
   name: "order",
   created() {
     this.userInfo = this.$store.state.userInfo
-    this.getOrderList()
+    this.getOrderList(1)
     this.$store.commit("RemoveNum")
   },
   mounted() {
@@ -137,9 +139,8 @@ export default {
     }
   },
   methods: {
-    getOrderList() {
-      const _this = this
-      this.$axios.get('/orderListByStoreId/1').then(res => {
+    getOrderList(status) {
+      this.$axios.get('/orderBySingleStatus/'+status).then(res => {
         this.orderList = res.data.data
       }).catch(err => {
         console.log(err);
@@ -152,22 +153,26 @@ export default {
       this.$router.push(`/goodsDetail/${goodsId}`)
     },
     deliver(orderId){
-      const _this = this
       this.$axios.put('/order/deliver/'+orderId).then(res =>{
-        _this.$message.success("发货成功")
-        _this.getOrderList()
+        this.$message.success("发货成功")
+        this.getOrderList(2)
       }).catch(err =>{
         console.log(err);
       })
     },
     returnGoods(orderId){
-
+      this.$axios.put('/order/return/'+orderId).then(res =>{
+        this.$message.success("退款成功")
+        this.getOrderList(5)
+      }).catch(err =>{
+        console.log(err)
+      })
     },
     handleClick(tab) {
       const _this = this
       let index = parseInt(tab.index)
       index += 1
-      this.$axios.get('/orderListByStatus/' + index).then(res => {
+      this.$axios.get('/orderBySingleStatus/' + index).then(res => {
         _this.orderList = res.data.data
       }).catch(err => {
         console.log(err);
@@ -197,7 +202,7 @@ export default {
   },
   watch:{
     getNewNum(){
-      this.getOrderList()
+      this.getOrderList(1)
       this.$store.commit("NewNum",0)
     }
   }

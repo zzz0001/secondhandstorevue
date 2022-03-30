@@ -9,7 +9,7 @@
         border
         :data="orderList"
         tooltip-effect="dark"
-        style="width: 846px;margin: 10px auto 14px auto;font-size: 10px"
+        style="width: 856px;margin: 10px auto 14px auto;font-size: 10px"
         :row-style="{height: '100px'}"
         :cell-style="{padding: '0px 0px 0px 0px'}"
         @cell-click="toStore"
@@ -71,38 +71,11 @@
         </template>
       </el-table-column>
       <el-table-column
-          label="更多详情"
-          width="89"
+          label="操作"
+          width="100"
           align="center">
         <template slot-scope="order">
-          <el-tooltip class="item" effect="light" placement="bottom-start">
-            <div v-if="order.row.order.orderStatus === 0" slot="content">
-              创建日期：{{ order.row.order.createTime.replace('T', ' ') }}
-            </div>
-            <div v-if="order.row.order.orderStatus === 1" slot="content">
-              创建日期：{{ order.row.order.createTime.replace('T', ' ') }} <br>
-              付款时间：{{ order.row.order.orderDate.replace('T', ' ') }}
-            </div>
-            <div v-if="order.row.order.orderStatus === 2" slot="content">
-              创建日期：{{ order.row.order.createTime.replace('T', ' ') }} <br>
-              付款时间：{{ order.row.order.orderDate.replace('T', ' ') }} <br>
-              发货时间：{{ item.order.deliveryDate.replace('T', ' ') }}
-            </div>
-            <div v-if="order.row.order.orderStatus === 3" slot="content">
-              创建日期：{{ order.row.order.createTime.replace('T', ' ') }} <br>
-              付款时间：{{ order.row.order.orderDate.replace('T', ' ') }} <br>
-              发货时间：{{ item.order.deliveryDate.replace('T', ' ') }} <br>
-              成交时间：{{ order.row.order.receiveDate.replace('T', ' ') }}
-            </div>
-            <div v-if="order.row.order.orderStatus === 4" slot="content">
-              创建日期：{{ order.row.order.createTime.replace('T', ' ') }} <br>
-              付款时间：{{ order.row.order.orderDate.replace('T', ' ') }} <br>
-              发货时间：{{ item.order.deliveryDate.replace('T', ' ') }} <br>
-              成交时间：{{ order.row.order.receiveDate.replace('T', ' ') }} <br>
-              退货时间：{{ order.row.order.returnDate.replace('T', ' ') }}
-            </div>
-            <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
-          </el-tooltip>
+          <el-button type="danger" @click="removeOrder(order.row.order.orderId)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -115,11 +88,11 @@
         <el-button v-else circle @click="selectAll(orderList)" style="position: relative;top: -4px;left: 10px;height: 28px;width: 28px">
         </el-button>
       </div>
-      <div style="width: 810px;float: left;">
+      <div style="width: 820px;float: left;">
         <span style="margin-left: 14px;font-size: 14px">全选</span>
         <span style="margin-left: 510px;font-size: 14px;margin-top: 8px">合计: <span style="color: red;">¥</span> </span>
-        <span class="my-price" >{{ totalPrice.toFixed(2) }}</span>
-        <el-button @click="payment" type="danger" style="margin-left: 30px;margin-top: -10px" round>立即结算</el-button>
+        <span class="my-price" style="display: inline-block;width: 90px">{{ totalPrice.toFixed(2) }}</span>
+        <el-button @click="payment" type="danger" style="margin-left: 24px;margin-top: -10px" round>立即结算</el-button>
       </div>
     </div>
   </div>
@@ -233,6 +206,22 @@ export default {
     to(path){
       this.$router.push(path)
     },
+    removeOrder(orderId){
+      this.$confirm('此操作将该订单删除, 是否继续?', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.delete('/order/'+orderId).then(res =>{
+          this.$message.success("删除成功")
+          this.getOrderList()
+        }).catch(err =>{
+          console.log(err);
+        })
+      }).catch(() => {
+        this.$message.info("已取消删除")
+      });
+    },
   }
 }
 </script>
@@ -264,10 +253,10 @@ export default {
   width: 0px;
 }
 .my-payment-view{
-  width: 846px;
+  width: 855px;
   height: 52px;
   line-height: 48px;
-  margin: 10px auto;
+  margin: -14px auto 16px auto;
   background: white;
 }
 .my-payment-view1{

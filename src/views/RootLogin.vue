@@ -1,20 +1,15 @@
 <template>
     <div id="login">
       <el-form :model="ruleForm" :rules="rules" :hide-required-asterisk="true" ref="ruleForm" label-width="60px" class="my-login-form">
-        <h2 style="margin-left: 18px;color: red;margin-bottom: 10px;margin-top: -10px">欢迎登录</h2>
-        <el-form-item label="学号" prop="studentId" >
-          <el-input v-model="ruleForm.studentId" placeholder="请输入学号(6-15位)"></el-input>
+        <el-form-item label="账号" prop="userName" >
+          <el-input v-model="ruleForm.userName" placeholder="请输入学号(6-15位)"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input v-model="ruleForm.password" placeholder="请输入密码(6-15位)" show-password></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="danger" @click="submitForm('ruleForm')" class="my-login-button">登录</el-button>
+          <el-button  @click="submitForm" class="my-login-button">登录</el-button>
         </el-form-item>
-        <span >
-          <el-link type="info" @click="to('/password')" style="size: 12px;margin-left: 160px;margin-bottom: 10px">忘记密码</el-link>
-          <el-link type="info" @click="to('/register')" style="margin-left: 26px;margin-bottom: 10px">立即注册</el-link>
-        </span>
       </el-form>
     </div>
 </template>
@@ -28,11 +23,11 @@ export default {
   data() {
     return {
       ruleForm: {
-        studentId: '6109118005',
+        userName: 'zzzzzz',
         password: '123123',
       },
       rules: {
-        studentId: [
+        userName: [
           {required: true, message: '请输入学号', trigger: 'blur'},
           {min: 5, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
         ],
@@ -44,30 +39,25 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    submitForm() {
+      this.$refs.ruleForm.validate((valid) => {
         if (valid) {
           const _this = this
-         this.$axios.post('/user/login',this.ruleForm).then(res =>{
+         this.$axios.post('/root/login',this.ruleForm).then(res =>{
            const token = res.headers['authorization']
            const userInfo = res.data.data
            _this.$store.commit('SET_TOKEN',token)
            _this.$store.commit('SET_USERINFO',userInfo)
-           _this.$message.success(res.data.message);
-           _this.$store.commit('ChangeLogin',true)
-           _this.$router.push('/')
+           _this.$router.push('/manage')
+           _this.$message.success("登录成功");
          }).catch(err =>{
            console.log(err);
-           // this.$message.error(err)
          })
         } else {
           return false;
         }
       });
     },
-    to(path){
-      this.$router.push(path)
-    }
   }
 }
 </script>
@@ -75,25 +65,27 @@ export default {
 <style scoped>
 
 #login {
-  background-image: url("../../public/login.jpg");
+  overflow: hidden;
+  background-image: url("../../public/rootLogin.jpg");
   background-repeat:no-repeat;
   width: auto;
-  height: calc(100vh - 70px);
+  height: calc(100vh);
   padding: 0px;
 }
 
 .my-login-form {
-  background: #F1F6F9;
+  background: #0e0b1e;
   padding-top: 20px;
   padding-right: 20px;
   width: 300px;
-  margin-left: 920px;
-  margin-top: 180px;
-  position: absolute;
-  border: 1px black solid;
+  height: 200px;
+  margin-top: 266px;
+  margin-left: 120px;
+  border: 0px black solid;
 }
 
 .my-login-button {
   width: 240px;
+  background: #c8c9f5;
 }
 </style>

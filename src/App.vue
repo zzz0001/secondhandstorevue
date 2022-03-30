@@ -1,13 +1,17 @@
 <template>
   <div id="app">
     <el-container>
-      <el-header height="40px">
+      <el-header height="40px" v-show="$route.meta.show">
         <Header/>
       </el-header>
+
       <el-main style="padding: 0px;background: white">
-        <router-view/>
+        <router-view v-if="!$route.meta.keepAlive"/>
+        <keep-alive>
+          <router-view v-if="$route.meta.keepAlive" />
+        </keep-alive>
       </el-main>
-      <el-footer height="30px">
+      <el-footer height="30px" v-show="$route.meta.show">
         <Footer/>
       </el-footer>
     </el-container>

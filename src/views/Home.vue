@@ -43,7 +43,7 @@
       <div class="block">
         <el-carousel trigger="click" height="260px">
           <el-carousel-item v-for="item in carouselList" :key="item">
-            <el-image
+            <el-image @click="queryByCategory(3)"
                 style="width: 520px;height: 260px;border-radius: 10px "
                 :src="item"
                 fit="cover">

@@ -7,8 +7,8 @@
       <h2 class="my-title"> 聊天列表 </h2>
     </div>
     <div v-for="(item,index) in contactList" class="my-contact-main">
-        <div>
-          <el-avatar @click="toUser(item.user.studentId)" class="my-contact-picture" fit="cover" :src="item ? item.user.picture : '/user/123abc.jpeg'" ></el-avatar>
+        <div @click="toUser(item.user.studentId)" >
+          <el-avatar class="my-contact-picture" fit="cover" :src="item ? item.user.picture : '/user/123abc.jpeg'" ></el-avatar>
         </div>
       <el-link @click="toUser(item.user.studentId)" class="my-contact-username" :underline="false">
         <p style="height: 24px;overflow: hidden">
@@ -22,7 +22,7 @@
       </el-link>
       <div class="my-talk" @click="toChat(item.user.studentId,item.newChatNum,index)">
         <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
-        <span style="position: relative;top: -6px">客服</span>
+        <span style="position: relative;top: -6px">私信</span>
       </div>
       <el-badge :value="item.newChatNum" v-show="item.newChatNum>0" class="my-chat-num" >
       </el-badge>
@@ -47,7 +47,7 @@ export default {
   },
   methods:{
     getChatList(){
-      this.$axios.get('/contact/'+this.userInfo.studentId).then(res =>{
+      this.$axios.get('/contact/'+ this.userInfo.studentId).then(res =>{
         this.contactList = res.data.data
       }).catch(err =>{
         console.log(err)
@@ -72,12 +72,20 @@ export default {
       }
     },
     removeContact(contactId,index){
-      this.contactList.splice(index,1);
-      this.$axios.delete("/contact/"+contactId).then(res =>{
-        this.$message.success("移除成功");
-      }).catch(err =>{
-        console.log(err);
-      })
+      this.$confirm('确定要将该用户从聊天列表中移除吗', '删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.contactList.splice(index,1);
+        this.$axios.delete("/contact/"+contactId).then(res =>{
+          this.$message.success("移除成功");
+        }).catch(err =>{
+          console.log(err);
+        })
+      }).catch(() => {
+        this.$message.info("已取消删除")
+      });
     },
   },
   computed: {

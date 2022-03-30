@@ -237,12 +237,14 @@ export default {
     getUser() {
       const studentId = this.$store.state.userInfo.studentId
       this.store.studentId = studentId
-      this.$axios.get('/user/' + studentId).then(res => {
-        this.userInfo = res.data.data
-        this.$store.commit('SET_USERINFO', res.data.data)
-      }).catch(err => {
-        console.log(err);
-      })
+      if (studentId){
+        this.$axios.get('/user/' + studentId).then(res => {
+          this.userInfo = res.data.data
+          this.$store.commit('SET_USERINFO', res.data.data)
+        }).catch(err => {
+          console.log(err);
+        })
+      }
     },
     getStore() {
       let studentId = ""

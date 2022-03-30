@@ -50,8 +50,8 @@ export default {
       this.isLogin = this.$store.getters.getIsLogin
       this.userInfo = this.$store.getters.getUserInfo
       if (this.userInfo){
-        this.initWebSocket()
-        this.ChatWebSocket()
+        // this.initWebSocket()
+        // this.ChatWebSocket()
       }
     },
     to(path){
@@ -94,7 +94,7 @@ export default {
             orderNum = orderNum + parseInt(num)
           }
           _this.$store.commit("NewNum",orderNum)
-          _this.$message.success("你有新的订单")
+          _this.$message.success("你有新的订单消息")
         }
       }
 
