@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <el-dialog title="开通店铺" :visible.sync="dialogFormVisible" width="40%">
+    <el-dialog title="开通店铺" :visible.sync="dialogFormVisible" width="40%" :close-on-click-modal='false' @close="closeChange">
       <el-form :model="store" :rules="rules" ref="store" hide-required-asterisk>
         <el-form-item label="店铺名称" label-width="80px" prop="storeName">
           <el-input v-model="store.storeName"></el-input>
@@ -71,7 +71,7 @@
       <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
       <p style="font-size: 16px;color: #38383b">客服</p>
     </div>
-    <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh">
+    <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh" :close-on-click-modal='false' @close="closeGoods">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
         {{ editFlag ? '修改商品' : '添加商品' }} </h2>
       <el-form :model="goods" :rules="rules2" ref="goods" hide-required-asterisk>
@@ -120,7 +120,7 @@
           >
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible">
+          <el-dialog :visible.sync="dialogVisible" >
             <img width="100%" :src="dialogImageUrl" alt="">
           </el-dialog>
         </el-form-item>
@@ -282,12 +282,11 @@ export default {
     openStore(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const _this = this
           this.$axios.post('/store', this.store).then(res => {
-            _this.store = res.data.data
-            _this.getUser()
-            _this.dialogFormVisible = false
-            _this.$message.success("店铺开通成功")
+            this.store = res.data.data
+            this.getUser()
+            this.dialogFormVisible = false
+            this.$message.success("店铺开通成功")
           }).catch(err => {
             console.log(err);
           })
@@ -299,11 +298,10 @@ export default {
     changeStore(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const _this = this
           this.$axios.put('/store', this.store).then(res => {
-            _this.store = res.data.data
-            _this.dialogFormVisible = false
-            _this.$message.success("信息修改成功")
+            this.store = res.data.data
+            this.dialogFormVisible = false
+            this.$message.success("信息修改成功")
           }).catch(err => {
             console.log(err);
           })
@@ -344,7 +342,8 @@ export default {
       this.$prompt('请输入要增加的库存数,负数则为减库存', '库存', {
         confirmButtonText: '添加',
         inputPattern: /^(-)?[1-9][0-9]*$/,
-        inputErrorMessage: '需要添加非零整数'
+        inputErrorMessage: '需要添加非零整数',
+        closeOnClickModal: false,
       }).then(({value}) => {
         this.$axios.put('/goods/inventory/'+goodsId+'/'+value).then(res =>{
           this.getGoods()

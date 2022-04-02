@@ -50,8 +50,8 @@
       <div v-for="item in comments.comment" class="my-goods-comment-item">
         <div @click="toUser(item.user.studentId)">
           <el-avatar  class="my-contact-picture" fit="cover" :src="item ? item.user.picture : '/user/123abc.jpeg'" ></el-avatar>
-          <p style="padding-top: 14px;float: left;margin-left: 10px;width: 200px"> {{item.user.userName}} </p>
-          <div style="margin-left: 500px;padding-top: 10px">
+          <p style="padding-top: 16px;float: left;margin-left: 10px;width: 200px"> {{item.user.userName}} </p>
+          <div style="margin-left: 580px;padding-top: 14px">
             <el-rate
                       v-model="item.comment.grade"
                       disabled
@@ -62,7 +62,16 @@
         </div>
         <div class="clear"></div>
         <div>
-          <p style="margin-top: 6px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.comment.content}}</p>
+          <p style="margin-top: 6px;min-height: 22px;max-height: 66px;overflow: hidden">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{item.comment.content}} </p>
+        </div>
+        <div v-if="item.images.length > 0" style="margin-left: 12px">
+          <div v-for="item1 in item.images" class="my-comment-images">
+            <el-image
+                style="width: 120px; height: 120px"
+                :src="item1"
+                :preview-src-list="item.images">
+            </el-image>
+          </div>
         </div>
       </div>
       <div v-if="comments.comment.length === 0">
@@ -134,6 +143,8 @@ export default {
     this.getGoods()
     this.getStore()
     this.getComment()
+  },
+  mounted(){
   },
   methods: {
     getGoods() {
@@ -288,8 +299,10 @@ export default {
 .my-goods-comment{
   width: 800px;
   margin: 20px auto 10px auto;
+  overflow: hidden;
 }
 .my-goods-comment-item{
+  overflow: hidden;
   width: 750px;
   margin-left: 0px;
   margin-top: 4px;
@@ -300,6 +313,7 @@ export default {
 .my-contact-picture{
   float: left;
   margin-top: 5px;
+  margin-left: 5px;
   height: 40px;
   width: 40px;
 }
@@ -307,5 +321,11 @@ export default {
   text-align: center;
   width: 500px;
   margin: 14px auto 14px auto;
+}
+.my-comment-images{
+  float: left;
+  margin-top: 10px;
+  margin-left: 16px;
+  margin-bottom: 6px;
 }
 </style>

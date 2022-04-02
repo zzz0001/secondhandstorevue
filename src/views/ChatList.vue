@@ -6,6 +6,13 @@
     <div>
       <h2 class="my-title"> 聊天列表 </h2>
     </div>
+    <div style="width: 500px;text-align: center;margin: 0px auto">
+      <el-input class="my-query-style2"
+                placeholder="通过学号添加用户"
+                v-model="inputValue">
+      </el-input>
+      <el-button @click="search()" icon="el-icon-search" size="small" style="position: relative;left: -50px;top: -1px"></el-button>
+    </div>
     <div v-for="(item,index) in contactList" class="my-contact-main">
         <div @click="toUser(item.user.studentId)" >
           <el-avatar class="my-contact-picture" fit="cover" :src="item ? item.user.picture : '/user/123abc.jpeg'" ></el-avatar>
@@ -39,6 +46,7 @@ export default {
       userInfo: {},
       contactList: [],
       Nums: 0,
+      inputValue: '',
     }
   },
   created() {
@@ -86,6 +94,14 @@ export default {
       }).catch(() => {
         this.$message.info("已取消删除")
       });
+    },
+    search(){
+      this.$axios.post('/contact/'+ this.inputValue).then(res =>{
+        this.getChatList()
+        this.$message.success("添加成功")
+      }).catch(err =>{
+        console.log(err)
+      })
     },
   },
   computed: {
@@ -161,5 +177,10 @@ export default {
   position: relative;
   left: -100px;
   top: 10px;
+}
+.my-query-style2{
+  width: 400px;
+  margin-left: 50px;
+  margin-bottom: 10px;
 }
 </style>

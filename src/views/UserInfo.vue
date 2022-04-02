@@ -76,6 +76,9 @@
           <el-button @click="changeUserInfo()" type="primary" size="small"
                      style="position: absolute;margin-top: 20px;margin-left: 10px">修改资料
           </el-button>
+          <el-button @click="dialogFormVisible = true" type="primary" size="small"
+                     style="position: absolute;margin-top: 60px;margin-left: 10px">修改密码
+          </el-button>
         </template>
         <el-descriptions-item>
           <template slot="label" class="my-test-description">
@@ -189,6 +192,24 @@
       </el-form>
     </el-popover>
 
+    <el-dialog title="修改支付密码" :visible.sync="dialogFormVisible" width="600px" :close-on-click-modal='false' @close="closeDialog">
+      <el-form :model="passwordForm" :rules="rules2" ref="passwordForm">
+        <el-form-item label="原密码" label-width="80px" prop="oldPassword">
+          <el-input v-model.number="passwordForm.oldPassword" autocomplete="off" type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="新密码" label-width="80px" prop="password">
+          <el-input v-model.number="passwordForm.password" autocomplete="off" type="password"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码" label-width="80px" prop="password2">
+          <el-input v-model.number="passwordForm.password2" autocomplete="off" type="password"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeDialog">取 消</el-button>
+        <el-button type="primary" @click="changePassword">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -220,6 +241,24 @@ export default {
         callback();
       }
     };
+    const checkPassword3 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
+      } else if (value !== this.passwordForm.password) {
+        callback(new Error('两次输入密码不一致!'));
+      } else {
+        callback();
+      }
+    };
+    const checkPassword4 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
+      } else if (value === this.passwordForm.oldPassword) {
+        callback(new Error('新密码不能与旧密码一致!'));
+      } else {
+        callback();
+      }
+    };
     return {
       userInfo: {},
       header: {
@@ -239,9 +278,27 @@ export default {
           {validator: checkPassword2, trigger: 'blur'}
         ]
       },
+      rules2: {
+        oldPassword:[
+          {validator: checkPassword, trigger: 'blur'}
+        ],
+        password: [
+          {validator: checkPassword4, trigger: 'blur'}
+        ],
+        password2: [
+          {validator: checkPassword3, trigger: 'blur'}
+        ]
+      },
       isShow: true,
       isShow2: true,
-      isUpload: true
+      isUpload: true,
+      dialogFormVisible: false,
+      passwordForm: {
+        studentId: '',
+        oldPassword: '',
+        password: '',
+        password2: '',
+      },
     }
   },
   created() {
@@ -298,6 +355,25 @@ export default {
       this.$refs.editPopover.doShow()
       this.isShow = false;
     },
+    closeDialog() {
+      this.dialogFormVisible = false
+      Object.keys(this.passwordForm).forEach(key => (this.passwordForm[key] = ''))
+      this.$refs.passwordForm.clearValidate()
+    },
+    changePassword(){
+      this.$refs.passwordForm.validate((valid) => {
+        if (valid) {
+          this.passwordForm.studentId = this.userInfo.studentId
+          this.$axios.put('/account/password',this.passwordForm).then(res =>{
+            this.$message.success("支付密码修改成功")
+            this.dialogFormVisible = false
+          }).catch(err =>{
+          })
+        } else {
+          return false;
+        }
+      });
+    },
     onSubmit() {
       this.$axios.put('/user', this.userInfo).then(res => {
         this.$message.success("信息修改成功")
@@ -348,13 +424,16 @@ export default {
       this.$prompt('请输入充值的金额', '充值', {
         confirmButtonText: '充值',
         inputPattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
-        inputErrorMessage: '金额格式不正确'
+        inputErrorMessage: '金额格式不正确',
+        closeOnClickModal: false,
       }).then(({value}) => {
         const money = value
         this.$prompt('请输入密码', '验证', {
           confirmButtonText: '充值',
           inputPattern: /^\d{6}$/,
-          inputErrorMessage: '密码为6位数字'
+          inputErrorMessage: '密码为6位数字',
+          inputType: 'password',
+          closeOnClickModal: false,
         }).then(({value}) => {
           this.$axios.put('/account/addMoney',{money: money,password: value}).then(res =>{
             this.getAccount()
@@ -377,7 +456,8 @@ export default {
         confirmButtonText: '提现',
         cancelButtonText: '取消',
         inputPattern: /(^[1-9]([0-9]+)?(\.[0-9]{1,2})?$)|(^(0){1}$)|(^[0-9]\.[0-9]([0-9])?$)/,
-        inputErrorMessage: '金额格式不正确'
+        inputErrorMessage: '金额格式不正确',
+        closeOnClickModal: false,
       }).then(({value}) => {
         if (value > this.account.money){
           this.$message.error("余额不足")
@@ -387,7 +467,9 @@ export default {
         this.$prompt('请输入密码', '验证', {
           confirmButtonText: '提现',
           inputPattern: /^\d{6}$/,
-          inputErrorMessage: '密码为6位数字'
+          inputErrorMessage: '密码为6位数字',
+          inputType: 'password',
+          closeOnClickModal: false,
         }).then(({value}) => {
           this.$axios.put('/account/reduceMoney',{money: money,password: value}).then(res =>{
             this.getAccount()
@@ -488,5 +570,7 @@ export default {
 .el-form-item {
   margin-bottom: 18px;
 }
-
+.dialog-footer{
+  margin-top: -20px;
+}
 </style>

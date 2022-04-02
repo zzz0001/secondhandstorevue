@@ -118,7 +118,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px">
+    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px" :close-on-click-modal='false'  @close="closeComment">
       <el-form :model="comment" ref="comment" :rules="rules">
         <el-form-item label="星级" label-width="80px" prop="grade">
           <div class="my-grade">
@@ -227,7 +227,8 @@ export default {
       this.$prompt('请输入密码', '验证', {
         confirmButtonText: '付款',
         inputPattern: /^\d{6}$/,
-        inputErrorMessage: '密码为6位数字'
+        inputErrorMessage: '密码为6位数字',
+        closeOnClickModal: false,
       }).then(({value}) => {
         this.orderVo.password = value
         this.$axios.put('/order',this.orderVo).then(res =>{

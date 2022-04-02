@@ -147,7 +147,8 @@ export default {
       this.$prompt('请输入密码', '验证', {
         confirmButtonText: '付款',
         inputPattern: /^\d{6}$/,
-        inputErrorMessage: '密码为6位数字'
+        inputErrorMessage: '密码为6位数字',
+        closeOnClickModal: false,
       }).then(({value}) => {
         this.orderListVO.password = value
         this.multipleSelection.forEach(order =>{
