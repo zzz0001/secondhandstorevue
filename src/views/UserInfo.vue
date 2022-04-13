@@ -14,10 +14,10 @@
                class="my-form2">
         <h2 style="font-size: 22px;color: #f5d007;margin-bottom: 16px;margin-left: 10px;margin-top: 4px">开通账户</h2>
         <el-form-item label="支付密码" prop="password">
-          <el-input v-model.number="account.password" placeholder="输入6位支付密码"></el-input>
+          <el-input v-model.number="account.password" placeholder="输入6位支付密码" show-password></el-input>
         </el-form-item>
         <el-form-item label="确认密码" prop="password2">
-          <el-input v-model.number="account.password2" placeholder="确认6位支付密码"></el-input>
+          <el-input v-model.number="account.password2" placeholder="确认6位支付密码" show-password></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmitAccount" style="margin-left: 20px;margin-bottom: 0px">
@@ -217,8 +217,6 @@
 
 export default {
   name: "UserInfo",
-  components: {
-  },
   data() {
     const checkPassword = (rule, value, callback) => {
       const numReg = /^\d{6}$/
@@ -308,32 +306,28 @@ export default {
   },
   methods: {
     getUser() {
-      const _this = this
       const studentId = this.$store.state.userInfo.studentId
       this.account.studentId = studentId
       this.$axios.get('/user/' + studentId).then(res => {
-        _this.userInfo = res.data.data
-        _this.$store.commit('SET_USERINFO', res.data.data)
+        this.userInfo = res.data.data
+        this.$store.commit('SET_USERINFO', res.data.data)
       }).catch(err => {
         console.log(err);
-        // _this.$message.error(err);
       })
     },
     getAccount() {
-      const _this = this
       const studentId = this.$store.state.userInfo.studentId
       this.$axios.get('/account/' + studentId).then(res => {
         if (res.data.data){
-          _this.account = res.data.data
+          this.account = res.data.data
         }
       }).catch(err => {
         console.log(err);
-        // _this.$message.error(err);
       })
     },
     handleAvatarSuccess(res, file) {
       if (file.response.code === 200) {
-        this.$message.success(file.response.message)
+        this.$message.success("头像上传成功")
       } else {
         this.$message.error(file.response.message)
       }
@@ -391,12 +385,11 @@ export default {
     onSubmitAccount() {
       this.$refs.account.validate((valid) => {
         if (valid) {
-          const _this = this
           this.$axios.post('/account',this.account).then(res =>{
-            _this.getUser()
-            _this.getAccount()
-            _this.closePopover2()
-            _this.$message.success("账户开通成功")
+            this.getUser()
+            this.getAccount()
+            this.closePopover2()
+            this.$message.success("账户开通成功")
           }).catch(err =>{
             console.log(err);
           })

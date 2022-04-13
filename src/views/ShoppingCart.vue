@@ -1,7 +1,7 @@
 <template>
   <div id="shoppingCart">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
     <h2 class="my-title"> 购物车 </h2>
     <el-table
@@ -148,6 +148,7 @@ export default {
         confirmButtonText: '付款',
         inputPattern: /^\d{6}$/,
         inputErrorMessage: '密码为6位数字',
+        inputType: 'password',
         closeOnClickModal: false,
       }).then(({value}) => {
         this.orderListVO.password = value
@@ -166,6 +167,7 @@ export default {
            } else {
              _this.$message.success("付款成功");
            }
+           this.$store.commit("NewOrder",1)
          }).catch(err =>{
           console.log(err);
         })

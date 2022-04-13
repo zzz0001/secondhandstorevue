@@ -161,17 +161,26 @@ export default {
       this.$axios.put('/order/deliver/'+orderId).then(res =>{
         this.$message.success("发货成功")
         this.getOrderList(2)
+        this.activeName = 'second'
       }).catch(err =>{
         console.log(err);
       })
     },
     returnGoods(orderId){
-      this.$axios.put('/order/return/'+orderId).then(res =>{
-        this.$message.success("退款成功")
-        this.getOrderList(5)
-      }).catch(err =>{
-        console.log(err)
-      })
+      this.$confirm('确认要退款吗', '退款', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.put('/order/return/'+orderId).then(res =>{
+          this.$message.success("退款成功")
+          this.getOrderList(5)
+        }).catch(err =>{
+          console.log(err)
+        })
+      }).catch(() => {
+        this.$message.info("已取消退款")
+      });
     },
     handleClick(tab) {
       const _this = this

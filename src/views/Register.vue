@@ -96,13 +96,12 @@ export default {
     };
   },
   methods: {
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
+    submitForm() {
+      this.$refs.ruleForm.validate((valid) => {
         if (valid) {
-          const _this = this
           this.$axios.post('/user/register',this.ruleForm).then(res =>{
-            _this.$message.success(res.data.message);
-            _this.$router.push('/login')
+            this.$message.success("注册成功");
+            this.$router.push('/login')
           }).catch(err =>{
             console.log(err);
           })

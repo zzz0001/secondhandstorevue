@@ -46,8 +46,14 @@ html, body, h1, h2, h3, h4, h5, h6, hr, p, dl, dt, dd, ul, ol, li, pre, button, 
 #app {
 }
 
-html{
-  overflow-y: scroll;
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+body {
+  width: 100vw;
+  overflow: hidden;
+  padding-left: calc(100vw - 5);
 }
 
 .el-header, .el-footer {

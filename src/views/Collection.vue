@@ -1,8 +1,9 @@
 <template>
   <div id="collection">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
+    <h2 class="my-title"> 我的收藏 </h2>
     <div class="my-collection-info">
       <div v-for="(item,index) in collectionList.collection" class="my-collection-item">
         <div class="my-goods-item">
@@ -88,6 +89,14 @@ export default {
   overflow: hidden;
   min-height: calc(100vh - 70px);
   background: #efe8e8;
+}
+
+.my-title {
+  color: #15b4f1;
+  font-size: 30px;
+  margin-left: 12vmax;
+  margin-top: -26px;
+  margin-bottom: 10px;
 }
 
 .my-collection-info {

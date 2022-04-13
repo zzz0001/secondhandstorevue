@@ -118,7 +118,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px" :close-on-click-modal='false'  @close="closeComment">
+    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px" :close-on-click-modal='false' :modal-append-to-body="false" @close="closeComment">
       <el-form :model="comment" ref="comment" :rules="rules">
         <el-form-item label="星级" label-width="80px" prop="grade">
           <div class="my-grade">
@@ -150,14 +150,14 @@
           >
             <i class="el-icon-plus"></i>
           </el-upload>
-          <el-dialog :visible.sync="dialogVisible">
+          <el-dialog :visible.sync="dialogVisible" append-to-body>
             <img width="100%" :src="dialogImageUrl" alt="">
           </el-dialog>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="closeComment">取 消</el-button>
-        <el-button type="primary" @click="postComment">确 定</el-button>
+        <el-button type="primary" @click="postComment">评 价</el-button>
       </div>
     </el-dialog>
 
@@ -235,6 +235,7 @@ export default {
         confirmButtonText: '付款',
         inputPattern: /^\d{6}$/,
         inputErrorMessage: '密码为6位数字',
+        inputType: 'password',
         closeOnClickModal: false,
       }).then(({value}) => {
         this.orderVo.password = value
@@ -255,17 +256,26 @@ export default {
       this.$axios.put('/order/receive/'+orderId).then(res =>{
         this.$message.success("收货成功")
         this.getOrderList(2)
+        this.activeName = 'fourth'
       }).catch(err =>{
         console.log(err);
       })
     },
     returnGoods(orderId){
-      this.$axios.put('/order/requestReturn/'+orderId).then(res =>{
-        this.$message.success("退货申请发送成功")
-        this.getOrderList(4)
-      }).catch(err =>{
-        console.log(err)
-      })
+      this.$confirm('确认要退货吗', '退货申请', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$axios.put('/order/requestReturn/'+orderId).then(res =>{
+          this.$message.success("退货申请发送成功")
+          this.getOrderList(4)
+        }).catch(err =>{
+          console.log(err)
+        })
+      }).catch(() => {
+        this.$message.info("已取消退货")
+      });
     },
     handleClick(tab) {
       const _this = this
@@ -357,6 +367,7 @@ export default {
             this.$message.success("评价成功")
             this.dialogFormVisible = false
             this.getOrderList(3)
+            this.activeName = 'five'
           }).catch(err =>{
             console.log(err);
           })
