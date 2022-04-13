@@ -210,6 +210,7 @@ export default {
   activated() {
     if (this.$store.state.newOrder > 0){
       this.$store.commit("RemoveNewOrder")
+      this.activeName = 'first'
       this.getOrderList(0)
     }
   },
