@@ -125,7 +125,12 @@ export default {
   created() {
     this.userInfo = this.$store.state.userInfo
     this.getOrderList(1)
-    this.$store.commit("RemoveNum")
+  },
+  activated() {
+    if (this.$store.state.newNum > 0){
+      this.getOrderList(1)
+      this.$store.commit("RemoveNum")
+    }
   },
   mounted() {
   },

@@ -6,11 +6,12 @@
       </el-header>
 
       <el-main style="padding: 0px;background: white">
-        <router-view v-if="!$route.meta.keepAlive"/>
-        <keep-alive>
+        <keep-alive v-if="getLogin">
           <router-view v-if="$route.meta.keepAlive" />
         </keep-alive>
+        <router-view v-if="!$route.meta.keepAlive || !getLogin"/>
       </el-main>
+
       <el-footer height="30px" v-show="$route.meta.show">
         <Footer/>
       </el-footer>
@@ -27,7 +28,12 @@ export default {
   components: {
     Header,
     Footer
-  }
+  },
+  computed:{
+    getLogin(){
+      return this.$store.getters.getIsLogin
+    }
+  },
 }
 </script>
 
@@ -38,7 +44,10 @@ html, body, h1, h2, h3, h4, h5, h6, hr, p, dl, dt, dd, ul, ol, li, pre, button, 
 }
 
 #app {
-  /*height: 100vh;*/
+}
+
+html{
+  overflow-y: scroll;
 }
 
 .el-header, .el-footer {

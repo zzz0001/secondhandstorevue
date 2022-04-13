@@ -175,8 +175,8 @@ export default {
 }
 .my-chat-num{
   position: relative;
-  left: -100px;
-  top: 10px;
+  left: -90px;
+  top: 12px;
 }
 .my-query-style2{
   width: 400px;

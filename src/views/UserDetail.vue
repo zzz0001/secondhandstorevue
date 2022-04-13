@@ -73,6 +73,16 @@
         </el-descriptions-item>
       </el-descriptions>
     </div>
+
+    <div class="toStore" @click="toStore">
+      <i class="el-icon-s-shop" style="font-size: 30px;color: #409EFF"></i>
+      <p style="font-size: 16px;color: #38383b">店铺</p>
+    </div>
+    <div class="my-talk" @click="toChat">
+      <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
+      <p style="font-size: 16px;color: #38383b">客服</p>
+    </div>
+
   </div>
 </template>
 
@@ -96,7 +106,13 @@ export default {
       }).catch(err =>{
         console.log(err);
       })
-    }
+    },
+    toStore(){
+      this.$router.push('/store/'+this.userInfo.studentId)
+    },
+    toChat(){
+      this.$router.push("/chat/"+this.userInfo.studentId)
+    },
   },
 }
 
@@ -116,5 +132,14 @@ export default {
   width: 60vmax;
   margin-top: 10px;
 }
-
+.my-talk{
+  position: absolute;
+  top: 200px;
+  left: 84vmax;
+}
+.toStore{
+  position: absolute;
+  top: 140px;
+  left: 84vmax;
+}
 </style>

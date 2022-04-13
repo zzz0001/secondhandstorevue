@@ -50,8 +50,8 @@ export default {
       this.isLogin = this.$store.getters.getIsLogin
       this.userInfo = this.$store.getters.getUserInfo
       if (this.userInfo){
-        // this.initWebSocket()
-        // this.ChatWebSocket()
+        this.initWebSocket()
+        this.ChatWebSocket()
       }
     },
     to(path){
@@ -150,8 +150,10 @@ export default {
   },
   watch:{
     getLogin(){
-      this.initWebSocket()
-      this.ChatWebSocket()
+      if (this.$store.getters.getIsLogin === true){
+        this.initWebSocket()
+        this.ChatWebSocket()
+      }
     }
   }
 }

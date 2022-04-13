@@ -9,7 +9,8 @@ const routes = [
     path: '/',
     name: 'Home',
     meta: {
-      show: true
+      show: true,
+      keepAlive: true,
     },
     component: Home,
   },
@@ -58,7 +59,7 @@ const routes = [
     name: 'Order',
     meta: {
       show: true,
-      keepAlive: true
+      keepAlive: true,
     },
     component: () => import('../views/Order')
   },

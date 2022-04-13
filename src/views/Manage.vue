@@ -245,7 +245,100 @@
       </el-table>
     </div>
 
+    <el-dialog title="订单信息" :visible.sync="dialogFormVisible" width="1000px" top="150px" :modal="false" :close-on-click-modal="false">
+      <el-table
+          :data="order"
+          border
+          style="width: 900px;margin: -16px auto 14px auto;font-size: 10px"
+          :row-style="{height: '100px'}"
+          :cell-style="{padding: '0px 0px 0px 0px'}"
+          @cell-click="toStore2"
+          :cell-class-name="cellClassName"
+      >
+        <el-table-column
+            label="商品图片"
+            width="110"
+        >
+          　　<template slot-scope="images">
+          <el-image
+              style="width: 100px; height: 100px;border-radius: 2px;margin-left: -6px;margin-top: 4px"
+              :src="images ? images.row.images[0] : ''"
+              fit="cover">
+          </el-image>
+          　　</template>
+        </el-table-column>
 
+        <el-table-column
+            prop="goods.goodsName"
+            label="商品名称"
+            width="100"
+            align="center"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="goods.goodsIntroduce"
+            label="商品介绍"
+            width="200"
+            align="center"
+        >
+        </el-table-column>
+
+        <el-table-column
+            prop="store.storeName"
+            label="店铺名"
+            width="120"
+            align="center"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="order.goodsNum"
+            label="商品数量"
+            width="70"
+            align="center"
+        >
+        </el-table-column>
+        <el-table-column
+            label="金额"
+            width="100"
+            align="center"
+        >
+          <template slot-scope="order">
+            <span style="color: red">¥</span> <span class="my-price">{{order.row.order.totalPrice}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="操作"
+            width="110"
+            align="center"
+        >
+          <template slot-scope="order">
+            <el-button v-if="order.row.order.orderStatus === 0 "  type="danger" :disabled="true"  size="medium" >付款</el-button>
+            <el-button v-if="order.row.order.orderStatus === 1 "  type="danger" :disabled="true"  size="small"  >催发货</el-button>
+            <el-button v-if="order.row.order.orderStatus === 2 "  type="danger" :disabled="true"  size="small" >确认收货</el-button>
+            <el-button v-if="order.row.order.orderStatus === 3 "  type="danger" :disabled="true"  size="small" >评价</el-button>
+            <el-button v-if="order.row.order.orderStatus === 4 "  type="danger" :disabled="true"  size="medium" >退货</el-button>
+            <el-button v-if="order.row.order.orderStatus === 5 "  type="danger"  :disabled="true" size="small" >退货中</el-button>
+            <el-button v-if="order.row.order.orderStatus === 6 "  type="primary" :disabled="true" size="small" >已退款</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+            label="更多详情"
+            width="89"
+            align="center">
+          <template slot-scope="order">
+            <el-tooltip class="item" effect="light" placement="bottom-start">
+              <div v-if="order.row.order.orderStatus === 0" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} </div>
+              <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
+              <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
+              <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+              <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+              <!--             <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}-->
+              <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
 
     <div class="my-page-style">
       <el-pagination
@@ -270,6 +363,7 @@ export default {
       activeIndex: '1',
       users: [],
       expense: [],
+      order: [],
       orderList: [],
       activeName: 'first',
       page: 1,
@@ -277,6 +371,7 @@ export default {
       inputValue: '',
       value: '1',
       isShow: false,
+      dialogFormVisible: false,
     };
   },
   created() {
@@ -292,6 +387,7 @@ export default {
         this.resultPage.total = 0
       }else {
         this.resultPage.total = 0
+        this.orderList = []
       }
     },
     getUsers() {
@@ -328,6 +424,13 @@ export default {
       } else {
         this.$message.warning("该用户没有开通店铺")
       }
+    },
+    toOrder(orderId){
+      this.dialogFormVisible = true
+      this.$axios.get('/order/'+orderId).then(res =>{
+        this.order = []
+        this.order.push(res.data.data)
+      })
     },
     logout() {
       this.$confirm("确认退出账号吗", "提示", {

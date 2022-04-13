@@ -1,12 +1,19 @@
 <template>
     <div id="login">
       <el-form :model="ruleForm" :rules="rules" :hide-required-asterisk="true" ref="ruleForm" label-width="60px" class="my-login-form">
-        <h2 style="margin-left: 18px;color: red;margin-bottom: 10px;margin-top: -10px">欢迎登录</h2>
-        <el-form-item label="学号" prop="studentId" >
-          <el-input v-model="ruleForm.studentId" placeholder="请输入学号(6-15位)"></el-input>
+        <p style="margin-left: 18px;margin-bottom: 10px;margin-top: -10px;font-size: 22px;font-weight: 700;color: #e52929;">欢迎登录</p>
+        <el-divider ></el-divider>
+        <el-form-item  prop="studentId" >
+          <div>
+            <i class="el-icon-s-custom" style="font-size: 26px;height: 40px;width: 34px;position: relative;padding-left: 7px;margin-left: -278px;z-index: 2;line-height: 40px;color: white;background: #8c939d"></i>
+            <el-input v-model="ruleForm.studentId" placeholder="请输入学号(6-15位)" style="width: 240px;margin-left: -2px;float: left;"></el-input>
+          </div>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="ruleForm.password" placeholder="请输入密码(6-15位)" show-password></el-input>
+        <el-form-item prop="password">
+          <div>
+            <i class="el-icon-lock" style="font-size: 26px;height: 40px;width: 34px;position: relative;padding-left: 7px;margin-left: -278px;z-index: 2;line-height: 40px;color: white;background: #8c939d"></i>
+            <el-input v-model="ruleForm.password" placeholder="请输入密码(6-15位)" show-password style="width: 240px;margin-left: -2px;float: left;"></el-input>
+          </div>
         </el-form-item>
         <el-form-item>
           <el-button type="danger" @click="submitForm('ruleForm')" class="my-login-button">登录</el-button>
@@ -94,6 +101,14 @@ export default {
 }
 
 .my-login-button {
-  width: 240px;
+  width: 280px;
+  margin-left: -40px;
+}
+
+.el-divider--horizontal {
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin: 4px 0 20px 10px;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div id="userInfo">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
     <el-popover
         placement="right"

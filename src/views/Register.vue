@@ -1,31 +1,32 @@
 <template>
   <div id="register">
     <el-form :model="ruleForm" :rules="rules" :hide-required-asterisk="true" ref="ruleForm"
-             label-width="80px" class="my-login-form">
-      <h2 style="margin-left: 18px;color: red;margin-top: 10px;margin-bottom: 10px;">欢迎注册</h2>
-      <el-form-item label="学号" prop="studentId">
-        <el-input v-model="ruleForm.studentId" placeholder="请输入学号(6-15位)"></el-input>
+             label-width="40px"  class="my-login-form">
+      <p style="margin-left: 18px;margin-bottom: 10px;margin-top: 10px;font-size: 22px;font-weight: 700;color: #e52929;">欢迎注册</p>
+      <el-divider ></el-divider>
+      <el-form-item label="" prop="studentId">
+        <el-input v-model="ruleForm.studentId" placeholder="请输入学号(6-15位)" style="width: 240px;"></el-input>
       </el-form-item>
-      <el-form-item label="用户名" prop="userName">
-        <el-input v-model="ruleForm.userName" placeholder="请输入用户名"></el-input>
+      <el-form-item label="" prop="userName">
+        <el-input v-model="ruleForm.userName" placeholder="请输入用户名" style="width: 240px"></el-input>
       </el-form-item>
-      <el-form-item label="姓名" prop="realName">
-        <el-input v-model="ruleForm.realName" placeholder="请输入真实姓名"></el-input>
+      <el-form-item label="" prop="realName">
+        <el-input v-model="ruleForm.realName" placeholder="请输入真实姓名" style="width: 240px" ></el-input>
       </el-form-item>
-      <el-form-item label="电话" prop="phone">
-        <el-input v-model="ruleForm.phone" placeholder="请输入电话号码"></el-input>
+      <el-form-item label="" prop="phone">
+        <el-input v-model="ruleForm.phone" placeholder="请输入电话号码" style="width: 240px"></el-input>
       </el-form-item>
-      <el-form-item label="密码" prop="password">
-        <el-input v-model="ruleForm.password" placeholder="请输入密码(6-15位)" show-password></el-input>
+      <el-form-item label="" prop="password">
+        <el-input v-model="ruleForm.password" placeholder="请输入密码(6-15位)" show-password style="width: 240px"></el-input>
       </el-form-item>
-      <el-form-item label="确认密码" prop="password2">
-        <el-input v-model="ruleForm.password2" autocomplete="off" placeholder="请再次输入密码(6-15位)" show-password></el-input>
+      <el-form-item label="" prop="password2">
+        <el-input v-model="ruleForm.password2" autocomplete="off" placeholder="请再次输入密码(6-15位)" show-password style="width: 240px"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="danger" @click="submitForm('ruleForm')" class="my-login-button">立即注册</el-button>
       </el-form-item>
       <span>
-          <el-link @click="to('/password')" style="size: 12px;margin-left: 160px;margin-bottom: 10px">忘记密码</el-link>
+          <el-link @click="to('/password')" style="size: 12px;margin-left: 140px;margin-bottom: 10px">忘记密码</el-link>
           <el-link @click="to('/login')" style="margin-left: 26px;margin-bottom: 10px">立即登录</el-link>
         </span>
     </el-form>
@@ -61,12 +62,12 @@ export default {
     };
     return {
       ruleForm: {
-        studentId: '6109118000',
-        userName: '魄',
-        password: '123123',
-        realName: '张三',
-        phone: '18216669999',
-        password2: '123123',
+        studentId: '',
+        userName: '',
+        password: '',
+        realName: '',
+        phone: '',
+        password2: '',
       },
       rules: {
         studentId: [
@@ -79,7 +80,7 @@ export default {
         ],
         password: [
           {required: true, message: '请输入密码', trigger: 'blur'},
-          {min: 3, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
+          {min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur'}
         ],
         realName: [
           {required: true, message: '请输入姓名', trigger: 'blur'},
@@ -139,10 +140,16 @@ export default {
 }
 
 .my-login-button {
-  width: 220px;
+  width: 240px;
 }
 
 .el-form-item{
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+}
+.el-divider--horizontal {
+  display: block;
+  height: 1px;
+  width: 100%;
+  margin: 4px 0 10px 10px;
 }
 </style>

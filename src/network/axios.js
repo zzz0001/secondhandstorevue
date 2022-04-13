@@ -30,7 +30,15 @@ axios.interceptors.response.use( response => {
         return Promise.reject(response.data.message);
     }
 },error => {
-    // console.log(error.response)
+    console.log(error)
+    if (!error.response){
+        ElementUI.Message({
+            showClose: true,
+            message: "请求超时，请稍后重试",
+            type: 'error'
+        })
+        return Promise.reject(error)
+    }
     let message;
     if (error.response.data.code === 401){
         store.commit("REMOVE_USER");

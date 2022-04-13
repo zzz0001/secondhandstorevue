@@ -78,9 +78,6 @@
 
     <div class="clear"></div>
 
-    <div v-if="goodsList.length === 0"  style="text-align: center;font-size: 20px;margin-top: 60px;margin-bottom: 60px;color: #FF6200">
-      <i class="el-icon-s-promotion"></i> 没有找到符合的商品哦，换个关键词试试！
-    </div>
 
     <div class="my-page-style">
       <el-pagination

@@ -10,6 +10,7 @@ export default new Vuex.Store({
     isLogin: localStorage.getItem('isLogin'),
     newNum: localStorage.getItem('newNum'),
     newChat: localStorage.getItem('newChat'),
+    newOrder: 0,
   },
   mutations: {
     SET_TOKEN:((state, token) =>{
@@ -46,6 +47,12 @@ export default new Vuex.Store({
       state.newChat = 0
       localStorage.removeItem('newChat')
     }),
+    NewOrder:((state,newOrder) => {
+      state.newOrder = newOrder
+    }),
+    RemoveNewOrder:(state =>{
+      state.newOrder = 0
+    })
   },
   actions: {
   },

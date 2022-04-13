@@ -1,7 +1,7 @@
 <template>
   <div id="order">
-    <el-link @click="to('/')" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
-             class="el-icon-s-home">主页
+    <el-link @click="$router.back()" :underline="false" style="margin-left: 30px;margin-top: 20px;font-size: 16px"
+             class="el-icon-arrow-left">返回
     </el-link>
     <h2 class="my-title"> 我的购物订单 </h2>
     <div>
@@ -207,6 +207,12 @@ export default {
     this.header.Authorization = this.$store.state.token
     this.getOrderList(0)
   },
+  activated() {
+    if (this.$store.state.newOrder > 0){
+      this.$store.commit("RemoveNewOrder")
+      this.getOrderList(0)
+    }
+  },
   methods: {
     getOrderList(status) {
       this.$axios.get('/orderListByStatus/'+status).then(res => {
@@ -368,8 +374,6 @@ export default {
       this.$refs.comment.resetFields();
     }
   },
-  computed:{
-  }
 }
 </script>
 
