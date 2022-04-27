@@ -236,8 +236,8 @@
               <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
               <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
               <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-              <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-              <!--             <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}-->
+              <div v-if="order.row.order.orderStatus === 4 || order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+              <div v-if="order.row.order.orderStatus === 6" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
               <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
             </el-tooltip>
           </template>
@@ -331,8 +331,8 @@
               <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
               <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
               <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-              <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-              <!--             <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}-->
+              <div v-if="order.row.order.orderStatus === 4 || order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+              <div v-if="order.row.order.orderStatus === 6" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
               <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
             </el-tooltip>
           </template>
@@ -438,8 +438,6 @@ export default {
       }).then(() => {
         this.$store.commit('REMOVE_USER')
         this.$store.commit('ChangeLogin', false)
-        this.$store.commit('RemoveChat')
-        this.$store.commit('RemoveNum')
         this.$router.push('/root')
       }).catch(() => {
       });
@@ -472,35 +470,59 @@ export default {
     lockAccount(studentId){
       this.$axios.put("/account/"+studentId).then(res =>{
         this.$message.success("账户锁定成功")
-        this.getUsers()
+        if (this.inputValue){
+          this.getUserByStudentId()
+        }else{
+          this.getUsers()
+        }
       }).catch(err =>{
-
       })
     },
     unlockAccount(studentId){
       this.$axios.put("/account/"+studentId).then(res =>{
         this.$message.success("账户解锁成功")
-        this.getUsers()
+        if (this.inputValue){
+          this.getUserByStudentId()
+        }else{
+          this.getUsers()
+        }
       }).catch(err =>{
-
       })
     },
     lockUser(studentId){
       this.$axios.put('/user/status/'+studentId).then(res =>{
         this.$message.success("账号锁定成功")
-        this.getUsers()
+        if (this.inputValue){
+          this.getUserByStudentId()
+        }else{
+          this.getUsers()
+        }
       }).catch(err =>{
       })
     },
     unlockUser(studentId){
       this.$axios.put('/user/status/'+studentId).then(res =>{
         this.$message.success("账号解锁成功")
-        this.getUsers()
+        if (this.inputValue){
+          this.getUserByStudentId()
+        }else{
+          this.getUsers()
+        }
       }).catch(err =>{
       })
     },
     allUser(){
+      this.inputValue = ''
       this.getUsers()
+    },
+    getUserByStudentId(){
+      this.$axios.get('/userByStudentId/'+this.inputValue).then(res =>{
+        console.log(res)
+        this.users = []
+        this.users.push(res.data.data)
+        this.resultPage.total = 0
+      }).catch(err =>{
+      })
     },
     search(flag){
       if (this.inputValue.match(/^[\s　]*$/)){
@@ -508,13 +530,7 @@ export default {
         return false
       }
       if (flag === 1){
-        this.$axios.get('/userByStudentId/'+this.inputValue).then(res =>{
-          console.log(res)
-          this.users = []
-          this.users.push(res.data.data)
-          this.resultPage.total = 0
-        }).catch(err =>{
-        })
+        this.getUserByStudentId()
       }else if (flag === 2){
         this.getExpense(this.inputValue)
         this.isShow = true

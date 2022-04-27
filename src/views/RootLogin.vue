@@ -42,14 +42,14 @@ export default {
     submitForm() {
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
-          const _this = this
          this.$axios.post('/root/login',this.ruleForm).then(res =>{
            const token = res.headers['authorization']
            const userInfo = res.data.data
-           _this.$store.commit('SET_TOKEN',token)
-           _this.$store.commit('SET_USERINFO',userInfo)
-           _this.$router.push('/manage')
-           _this.$message.success("登录成功");
+           this.$store.commit('SET_TOKEN',token)
+           this.$store.commit('SET_USERINFO',userInfo)
+           this.$store.commit('ChangeLogin',true)
+           this.$router.push('/manage')
+           this.$message.success("登录成功");
          }).catch(err =>{
            console.log(err);
          })

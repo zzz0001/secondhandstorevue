@@ -68,6 +68,7 @@
           align="center"
       >
       </el-table-column>
+
       <el-table-column
           prop="order.goodsNum"
           label="商品数量"
@@ -90,6 +91,9 @@
           align="center"
       >
         <template slot-scope="order">
+          <el-button v-if="order.row.order.urgent === 1 && order.row.order.orderStatus === 1 " class="my-goods-inventory"  circle type="danger" >
+            急
+          </el-button>
           <el-button v-if="order.row.order.orderStatus === 1" @click="deliver(order.row.order.orderId)" type="danger"  size="small"  >发货</el-button>
           <el-button v-if="order.row.order.orderStatus === 2"  type="primary"  size="small" >已发货</el-button>
           <el-button v-if="order.row.order.orderStatus === 3"  type="primary"  size="small" >已收货</el-button>
@@ -107,14 +111,16 @@
              <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}}</div>
              <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
              <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 4 || order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
              <div v-if="order.row.order.orderStatus === 6" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
              <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
            </el-tooltip>
          </template>
       </el-table-column>
     </el-table>
+
+    <el-badge :value="$store.state.returnNum" v-show="$store.state.returnNum>0" class="my-returnNum" >
+    </el-badge>
 
   </div>
 </template>
@@ -131,6 +137,10 @@ export default {
       this.getOrderList(1)
       this.$store.commit("RemoveNum")
     }
+    this.isWatch = true
+  },
+  deactivated() {
+    this.isWatch = false
   },
   mounted() {
   },
@@ -141,6 +151,7 @@ export default {
       orderVo: {},
       websocket: {},
       activeName: 'first',
+      isWatch: false,
     }
   },
   methods: {
@@ -158,10 +169,9 @@ export default {
       this.$router.push(`/goodsDetail/${goodsId}`)
     },
     deliver(orderId){
-      this.$axios.put('/order/deliver/'+orderId).then(res =>{
+      this.$axios.put('/order/delivery/'+orderId).then(res =>{
         this.$message.success("发货成功")
-        this.getOrderList(2)
-        this.activeName = 'second'
+        this.getOrderList(1)
       }).catch(err =>{
         console.log(err);
       })
@@ -186,6 +196,9 @@ export default {
       const _this = this
       let index = parseInt(tab.index)
       index += 1
+      if (index === 5){
+        this.$store.commit("RemoveReturnNum")
+      }
       this.$axios.get('/orderBySingleStatus/' + index).then(res => {
         _this.orderList = res.data.data
       }).catch(err => {
@@ -216,8 +229,10 @@ export default {
   },
   watch:{
     getNewNum(){
-      this.getOrderList(1)
-      this.$store.commit("NewNum",0)
+      if (this.isWatch){
+        this.getOrderList(1)
+        this.$store.commit("NewNum",0)
+      }
     }
   }
 }
@@ -246,5 +261,15 @@ export default {
 }
 .el-table--border::after{
   width: 0px;
+}
+.my-goods-inventory {
+  position: absolute;
+  left: -214px;
+  top: 34px;
+}
+.my-returnNum{
+  position: absolute;
+  top: 100px;
+  left: 640px;
 }
 </style>

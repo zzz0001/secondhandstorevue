@@ -35,7 +35,7 @@
 
     <div class="clear"></div>
 
-    <div v-if="goodsList.length === 0"  style="text-align: center;font-size: 20px;margin-top: 60px;margin-bottom: 60px;color: #FF6200">
+    <div v-if="noFind"  style="text-align: center;font-size: 20px;margin-top: 60px;margin-bottom: 60px;color: #FF6200">
       <i class="el-icon-s-promotion"></i> 没有找到符合的商品哦，换个关键词试试！
     </div>
 
@@ -75,6 +75,7 @@ export default {
       goodsPage:{},
       page:1,
       category: 0,
+      noFind: false,
     }
   },
   created() {
@@ -89,16 +90,28 @@ export default {
   methods: {
     getGoodsByName() {
       this.$axios.get('/goodsByName/'+this.value+'/'+ this.page).then(res =>{
-        this.goodsList = res.data.data.goods
-        this.goodsPage = res.data.data.page
+        if (res.data.data !== null){
+          this.goodsList = res.data.data.goods
+          this.goodsPage = res.data.data.page
+        }else{
+          this.goodsList = []
+          this.goodsPage.total = 0
+          this.noFind = true
+        }
       }).catch(err =>{
         console.log(err)
       })
     },
     getGoodsByCategory(){
       this.$axios.get('/goodsByCategory/' + this.category + "/" + this.page).then(res => {
-        this.goodsList = res.data.data.goods
-        this.goodsPage = res.data.data.page
+        if (res.data.data !== null){
+          this.goodsList = res.data.data.goods
+          this.goodsPage = res.data.data.page
+        }else{
+          this.goodsList = []
+          this.goodsPage.total = 0
+          this.noFind = true
+        }
       }).catch(err => {
         console.log(err);
       })
@@ -113,8 +126,14 @@ export default {
       }
       if (this.selectValue === 1) {
         this.$axios.get('/goodsByName/' + this.value + '/' + this.page).then(res => {
-          this.goodsList = res.data.data.goods
-          this.goodsPage = res.data.data.page
+          if (res.data.data !== null){
+            this.goodsList = res.data.data.goods
+            this.goodsPage = res.data.data.page
+          }else{
+            this.goodsList = []
+            this.goodsPage.total = 0
+            this.noFind = true
+          }
         }).catch(err => {
           console.log(err)
         })

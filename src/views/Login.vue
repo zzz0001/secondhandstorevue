@@ -60,12 +60,11 @@ export default {
            const userInfo = res.data.data
            _this.$store.commit('SET_TOKEN',token)
            _this.$store.commit('SET_USERINFO',userInfo)
-           _this.$message.success(res.data.message);
            _this.$store.commit('ChangeLogin',true)
+           _this.$message.success(res.data.message);
            _this.$router.push('/')
          }).catch(err =>{
            console.log(err);
-           // this.$message.error(err)
          })
         } else {
           return false;

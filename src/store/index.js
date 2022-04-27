@@ -9,6 +9,7 @@ export default new Vuex.Store({
     userInfo: JSON.parse(localStorage.getItem('userInfo')),
     isLogin: localStorage.getItem('isLogin'),
     newNum: localStorage.getItem('newNum'),
+    returnNum: localStorage.getItem('returnNum'),
     newChat: localStorage.getItem('newChat'),
     newOrder: 0,
   },
@@ -39,6 +40,14 @@ export default new Vuex.Store({
       state.newNum = 0
       localStorage.removeItem("newNum")
     }),
+    ReturnNum:((state,returnNum) => {
+      state.returnNum = returnNum
+      localStorage.setItem('returnNum',returnNum)
+    }),
+    RemoveReturnNum:(state => {
+      state.returnNum = 0
+      localStorage.removeItem("returnNum")
+    }),
     NewChat:((state,newChat) => {
       state.newChat = newChat
       localStorage.setItem('newChat',newChat)
@@ -65,6 +74,17 @@ export default new Vuex.Store({
     getUserInfo:(state => {
       return state.userInfo
     }),
+    getNum:(state => {
+      let a = 0
+      let b = 0
+      if (state.newNum !== null){
+         a = parseInt(state.newNum)
+      }
+      if (state.returnNum !== null){
+         b = parseInt(state.returnNum)
+      }
+      return a+b
+    })
   }
 
 })

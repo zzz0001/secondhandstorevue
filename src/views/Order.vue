@@ -109,8 +109,8 @@
              <div v-if="order.row.order.orderStatus === 1" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} </div>
              <div v-if="order.row.order.orderStatus === 2" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}}</div>
              <div v-if="order.row.order.orderStatus === 3" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-             <div v-if="order.row.order.orderStatus === 4" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
-<!--             <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}-->
+             <div v-if="order.row.order.orderStatus === 4 || order.row.order.orderStatus === 5" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}}</div>
+             <div v-if="order.row.order.orderStatus === 6" slot="content">创建日期：{{order.row.order.createTime.replace('T',' ')}} <br> 付款时间：{{order.row.order.orderDate.replace('T',' ')}} <br> 发货时间：{{order.row.order.deliveryDate.replace('T',' ')}} <br> 成交时间：{{order.row.order.receiveDate.replace('T',' ')}} <br> 退货时间：{{order.row.order.returnDate.replace('T',' ')}}</div>
              <button style="border: none;background: white;font-size: 12px;color: #4c5055">详情</button>
            </el-tooltip>
            <el-button v-if="order.row.order.orderStatus === 0 " @click="removeOrder(order.row.order.orderId)" type="danger"  size="medium" class="my-remove-order">删除</el-button>
@@ -118,7 +118,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px" :close-on-click-modal='false' :modal-append-to-body="false" @close="closeComment">
+    <el-dialog title="商品评价" :visible.sync="dialogFormVisible" style="margin-top: -20px" :close-on-click-modal='false' :modal-append-to-body="false" :show-close="false">
       <el-form :model="comment" ref="comment" :rules="rules">
         <el-form-item label="星级" label-width="80px" prop="grade">
           <div class="my-grade">
@@ -249,13 +249,17 @@ export default {
         console.log(err);
       })
     },
-    quick(){
-      this.$message.success("已经提醒商家发货")
+    quick(orderId){
+      this.$axios.put('/order/urge/'+orderId).then(res =>{
+        this.$message.success("已经提醒商家发货")
+      }).catch(err =>{
+        console.log(err)
+      })
     },
     receive(orderId){
       this.$axios.put('/order/receive/'+orderId).then(res =>{
         this.$message.success("收货成功")
-        this.getOrderList(2)
+        this.getOrderList(3)
         this.activeName = 'fourth'
       }).catch(err =>{
         console.log(err);
@@ -366,7 +370,7 @@ export default {
           this.$axios.post('/comment',this.comment).then(res =>{
             this.$message.success("评价成功")
             this.dialogFormVisible = false
-            this.getOrderList(3)
+            this.getOrderList(4)
             this.activeName = 'five'
           }).catch(err =>{
             console.log(err);

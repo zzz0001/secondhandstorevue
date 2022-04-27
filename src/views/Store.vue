@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <el-dialog title="开通店铺" :visible.sync="dialogFormVisible" width="40%" :close-on-click-modal='false' @close="closeChange">
+    <el-dialog title="开通店铺" :visible.sync="dialogFormVisible" width="40%" :close-on-click-modal='false' :show-close="false">
       <el-form :model="store" :rules="rules" ref="store" hide-required-asterisk>
         <el-form-item label="店铺名称" label-width="80px" prop="storeName">
           <el-input v-model="store.storeName"></el-input>
@@ -64,14 +64,15 @@
       <el-button  type="primary" size="small" class="my-button4" @click="editStatus=1">删除商品</el-button>
       <el-button  type="primary" size="small" class="my-button5" @click="editStatus=2">添加库存</el-button>
       <el-button type="danger" plain size="" class="my-button6" @click="toStoreOrder">店铺订单</el-button>
-      <el-badge :value="$store.state.newNum" v-show="$store.state.newNum>0" class="item" >
+      <el-badge :value="$store.getters.getNum" v-show="$store.getters.getNum>0" class="item" >
       </el-badge>
     </div>
     <div class="my-chat" @click="toChat" v-if="!owner">
       <i class="el-icon-chat-dot-round" style="font-size: 30px;color: #409EFF"></i>
       <p style="font-size: 16px;color: #38383b">客服</p>
     </div>
-    <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh" :close-on-click-modal='false' @close="closeGoods">
+
+    <el-dialog :visible.sync="dialogFormVisible2" width="40%" top="2vh" :close-on-click-modal='false' :show-close="false">
       <h2 style="position:absolute;margin-top: -40px;margin-bottom: 2px;font-size: 20px;color: #232a27">
         {{ editFlag ? '修改商品' : '添加商品' }} </h2>
       <el-form :model="goods" :rules="rules2" ref="goods" hide-required-asterisk>
@@ -130,6 +131,7 @@
         <el-button @click="postGoods" type="primary">上传</el-button>
       </div>
     </el-dialog>
+
   </div>
 </template>
 
@@ -175,13 +177,16 @@ export default {
           {min: 1, max: 999, type: 'number', message: '商品数量需为 1-999', trigger: 'blur'}
         ],
       },
+      // goods: {
+      //   goodsName: '',
+      //   images: [],
+      //   goodsIntroduce: '',
+      //   goodsCategory: '',
+      //   goodsPrice: '',
+      //   goodsInventory: ''
+      // },
       goods: {
-        goodsName: '',
         images: [],
-        goodsIntroduce: '',
-        goodsCategory: 0,
-        goodsPrice: 100,
-        goodsInventory: 10
       },
       goodsList: {},
       goodsCategory: [
@@ -223,29 +228,16 @@ export default {
     }
   },
   created() {
-    this.getUser()
     this.header.Authorization = this.$store.state.token
+    this.userInfo = this.$store.state.userInfo
     this.storeId = this.$route.params.storeId
-    if (parseInt(this.storeId) !== this.$store.state.userInfo.studentId){
+    if (parseInt(this.storeId) !== this.userInfo.studentId){
       this.owner = false;
     }
     this.getStore()
     this.getGoods()
   },
-  compute: {},
   methods: {
-    getUser() {
-      const studentId = this.$store.state.userInfo.studentId
-      this.store.studentId = studentId
-      if (studentId){
-        this.$axios.get('/user/' + studentId).then(res => {
-          this.userInfo = res.data.data
-          this.$store.commit('SET_USERINFO', res.data.data)
-        }).catch(err => {
-          console.log(err);
-        })
-      }
-    },
     getStore() {
       let studentId = ""
       if (this.owner){
@@ -331,7 +323,6 @@ export default {
           _this.getGoods()
           _this.$message.success("商品删除成功")
         }).catch(err => {
-          _this.$message.error("商品删除失败")
           console.log(err)
         })
       }).catch(() => {
@@ -415,23 +406,28 @@ export default {
     deleteImage(path) {
       let param = {path: path}
       this.$axios.delete('/image/remove', {params: param}).then(res => {
-        console.log(res);
+        // console.log(res);
       }).catch(err => {
         console.log(err);
       })
     },
     closeGoods() {
+      const length = this.goods.images.length
+      if (this.editFlag === false && length > 0){
+        for (let i = 0; i < length; i++) {
+          this.deleteImage(this.goods.images[i])
+        }
+      }
       this.dialogFormVisible2 = false
-      this.editFlag = false
       this.goods = {}
       this.goods.images = []
       this.$refs.upload.clearFiles()
-      this.$refs.goods.resetFields();
+      this.$refs.goods.resetFields()
     },
     editGoods(index) {
       this.editFlag = true
       this.dialogFormVisible2 = true
-      this.goods = this.goodsList.at(index).goods
+      this.goods = JSON.parse(JSON.stringify(this.goodsList[index].goods))
       this.goods.images = this.goodsList.at(index).images
       const _this = this
       this.goods.images.forEach(function (image) {
