@@ -192,7 +192,7 @@ export default {
       goodsCategory: [
         {
           value: 1,
-          label: '生活用品(护肤品、保温瓶、塑料盆...)'
+          label: '生活用品(护肤品、保温瓶...)'
         }, {
           value: 2,
           label: '书籍'
@@ -201,10 +201,10 @@ export default {
           label: '衣服'
         }, {
           value: 4,
-          label: '运动物品(篮球、足球...)'
+          label: '体育用品'
         }, {
           value: 5,
-          label: '手机'
+          label: '手机、手机周边'
         }, {
           value: 6,
           label: '电脑、电脑周边'
@@ -274,10 +274,12 @@ export default {
     openStore(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
+          this.store.studentId =  this.userInfo.studentId
           this.$axios.post('/store', this.store).then(res => {
             this.store = res.data.data
-            this.getUser()
             this.dialogFormVisible = false
+            this.owner = true
+            this.getUser()
             this.$message.success("店铺开通成功")
           }).catch(err => {
             console.log(err);
@@ -286,6 +288,14 @@ export default {
           return false;
         }
       });
+    },
+    getUser(){
+      this.$axios.get('/user/' + this.userInfo.studentId).then(res => {
+        this.userInfo = res.data.data
+        this.$store.commit('SET_USERINFO', res.data.data)
+      }).catch(err => {
+        console.log(err);
+      })
     },
     changeStore(formName) {
       this.$refs[formName].validate((valid) => {
@@ -353,21 +363,22 @@ export default {
     postGoods() {
       this.$refs.goods.validate((valid) => {
         if (valid) {
-          const _this = this
           if (this.editFlag) {
-            _this.getNewImage()
+            this.getNewImage()
           }
           this.$axios.post('/goods', this.goods).then(res => {
-            _this.getGoods()
-            _this.dialogFormVisible2 = false
-            if (_this.editFlag) {
-              _this.$message.success("商品修改成功")
+            this.getGoods()
+            this.dialogFormVisible2 = false
+            if (this.editFlag) {
+              this.$message.success("商品修改成功")
             } else {
-              _this.$message.success("商品添加成功")
+              this.$message.success("商品添加成功")
             }
-            _this.editFlag = false
-            _this.goods.images = []
+            this.editFlag = false
+            this.goods = {}
+            this.goods.images = []
             this.$refs.upload.clearFiles()
+            this.$refs.goods.resetFields()
           }).catch(err => {
             console.log(err);
           })
@@ -465,7 +476,6 @@ export default {
     '$route' (to, from) {
       this.store = {}
       this.owner = true
-      this.getUser()
       this.header.Authorization = this.$store.state.token
       this.storeId = this.$route.params.storeId
       if (parseInt(this.storeId) !== this.$store.state.userInfo.studentId){

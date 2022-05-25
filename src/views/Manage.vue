@@ -372,6 +372,7 @@ export default {
       value: '1',
       isShow: false,
       dialogFormVisible: false,
+      orderIndex: 0,
     };
   },
   created() {
@@ -387,7 +388,7 @@ export default {
         this.resultPage.total = 0
       }else {
         this.resultPage.total = 0
-        this.orderList = []
+        this.getOrderList(0)
       }
     },
     getUsers() {
@@ -405,12 +406,18 @@ export default {
       })
     },
     getOrderList(status) {
-      this.$axios.get('/orderListByStudentIdAndStatus/'+this.inputValue+'/'+status).then(res => {
-        this.orderList = res.data.data
-        this.resultPage.total = 0
-      }).catch(err => {
-        console.log(err);
-      })
+      if (this.inputValue.match(/^[\s　]*$/)){
+        this.$axios.get('/orderPageByStatus/'+status+'/'+this.page).then(res =>{
+          this.orderList = res.data.data.orders
+          this.resultPage = res.data.data.page
+        })
+      }else{
+        this.$axios.get('/orderListByStudentIdAndStatus/'+this.inputValue+'/'+status).then(res => {
+          this.orderList = res.data.data
+          this.resultPage.total = 0
+        }).catch(err => {
+        })
+      }
     },
     toChat(studentId) {
       this.$router.push("/chat/" + studentId)
@@ -449,6 +456,7 @@ export default {
       }else if (this.value === '2'){
         this.getExpense()
       }else {
+        this.getOrderList(this.orderIndex)
       }
     },
     removeUser(studentId){
@@ -540,11 +548,13 @@ export default {
       }
     },
     handleClick(tab) {
-      if (this.inputValue.match(/^[\s　]*$/)) {
-        this.$message.warning("不能查询空串")
-        return false
-      }
+      // if (this.inputValue.match(/^[\s　]*$/)) {
+      //   this.$message.warning("不能查询空串")
+      //   return false
+      // }
+      this.page = 1
       this.getOrderList(tab.index)
+      this.orderIndex = tab.index
     },
     getStore(storeId){
       this.$router.push('/store/'+storeId)
